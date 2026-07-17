@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض الدار العالمية للنشر والتجليد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8f6f0;
+            --card-bg: #ffffff;
+            --primary: #8b6914;
+            --primary-light: rgba(139, 105, 20, 0.1);
+            --text-main: #2c2212;
+            --text-muted: #6e614c;
+            --border: rgba(139, 105, 20, 0.15);
+            --green: #2e7d32;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            border-bottom: 4px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        header h1 {
+            font-family: 'Amiri', serif;
+            color: var(--primary);
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .controls-wrapper {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary);
+        }
+
+        .stats-bar {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        tr:hover {
+            background-color: rgba(139, 105, 20, 0.02);
+        }
+
+        .book-title {
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-main);
+            white-space: normal;
+            min-width: 250px;
+        }
+
+        .badge-type {
+            background: #eee;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .price-old {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .price-net {
+            color: var(--green);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .discount-pct {
+            background: rgba(46, 125, 50, 0.1);
+            color: var(--green);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-add:hover {
+            opacity: 0.9;
+        }
+
+        /* سلة الفاتورة السريعة */
+        .cart-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #2c2212;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .cart-panel span {
+            font-weight: bold;
+            color: #f4d35e;
+        }
+
+        .cart-clear {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #ff8c00;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📚 معرض كتب الدار العالمية للنشر والتجليد</h1>
+        <p>قائمة العناوين والأسعار المخفضة لشهر أبريل 2026 — مكتبات وتوزيع</p>
+    </header>
+
+    <div class="controls-wrapper">
+        <input type="text" class="search-box" id="searchInp" placeholder="🔍 ابحث باسم الكتاب، المؤلف، أو المحقق..." oninput="filterBooks()">
+        <div class="stats-bar" id="statsBar">جاري تحميل الكتب...</div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>اسم الكتـاب</th>
+                    <th>المؤلف</th>
+                    <th>النوع</th>
+                    <th>السعر الرسمي</th>
+                    <th>الخصم</th>
+                    <th>الصافي</th>
+                    <th>شراء</th>
+                </tr>
+            </thead>
+            <tbody id="booksTableBody">
+                <!-- ضخ البيانات بالجافا سكريبت -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cart-panel" id="cartPanel">
+        <div>المختارة: <span id="cartCount">٠</span> كتب | الإجمالي الصافي: <span id="cartTotal">٠</span> ج.م</div>
+        <button class="cart-clear" onclick="clearCart()">تصفير</button>
+    </div>
+
+    <script>
+        // مصفوفة قائمة الكتب والأسعار المأخوذة من الداتا بالملي
+        const booksData = [
+            { title: "الأذكار - طبعة مشكولة لون2", author: "النووي", type: "مجلد", price: 200, discount: "30%", net: 140 },
+            { title: "الارشاد الى صحيح الاعتقاد", author: "الفوزان", type: "مجلد", price: 155, discount: "30%", net: 108.5 },
+            { title: "الأشباه والنظائر في قواعد وفروع الفقه الشافعي", author: "السيوطي", type: "مجلد", price: 285, discount: "30%", net: 199.5 },
+            { title: "الاتقان في علوم القرآن 2 لون شمواه - تحقيق محمد نصر ابي جبل", author: "السيوطي", type: "مجلد", price: 295, discount: "30%", net: 206.5 },
+            { title: "الاقناع في حل الفاظ ابى شجاع 2 لون شمواه", author: "الخطيب الشربيني", type: "مجلد 2", price: 330, discount: "30%", net: 231 },
+            { title: "الفية العراقي في علوم الحديث 2 لون شمواه (وسط)", author: "الحافظ العراقي", type: "غلاف", price: 40, discount: "30%", net: 28 },
+            { title: "ايسر التفاسير 21/3 لون ورق شمواه", author: "ابوبكر الجزائري", type: "مجلد 3", price: 855, discount: "30%", net: 598.5 },
+            { title: "اعانة الطالبين على حل الفاظ فتح المعين 4/1 ورق شمواه 2 لون", author: "محمد شطا الدمياطي", type: "مجلد 4", price: 1145, discount: "30%", net: 801.5 },
+            { title: "اعراب القرآن الكريم 1/6 مجلد ورق شمواه 2 لون", author: "مجموعة علماء", type: "مجلدات 6", price: 1400, discount: "30%", net: 980 },
+            { title: "ابانة الاحكام شرح بلوغ المرام 1/2", author: "حسن نووي / علوي عباس", type: "مجلد 2", price: 550, discount: "30%", net: 385 },
+            { title: "اتحاف القاري شرح السنة للبربهاري 2 لون شمواه", author: "الفوزان", type: "مجلد", price: 185, discount: "30%", net: 129.5 },
+            { title: "ارشاد الساري شرح السنة للبربهاري لون 2 شمواه", author: "النجمي", type: "مجلد", price: 165, discount: "30%", net: 115.5 },
+            { title: "احياء علوم الدين 1/5 - مذيلا بتعلقات عقدية هامة", author: "الغزالي", type: "مجلد 5", price: 1145, discount: "30%", net: 801.5 },
+            { title: "احاديث الاذكار والادعية ورق شمواه لون 2", author: "عبد الرزاق البدر", type: "مجلد", price: 285, discount: "30%", net: 199.5 },
+            { title: "احاديث الايمان ورق شمواه لون 2", author: "عبد الرزاق البدر", type: "مجلد", price: 175, discount: "30%", net: 122.5 },
+            { title: "احادیث اصلاح القلوب ورق شمواه لون 2", author: "عبد الرزاق البدر", type: "مجلد", price: 285, discount: "30%", net: 199.5 },
+            { title: "احاديث الاخلاق ورق شمواه لون 2", author: "عبد الرزاق البدر", type: "مجلد", price: 200, discount: "30%", net: 140 },
+            { title: "آداب البحث والمناظرة", author: "محمد الأمين الشنقيطي", type: "مجلد", price: 160, discount: "30%", net: 112 },
+            { title: "أصول الإيمان", author: "نخبة من العلماء", type: "مجلد", price: 150, discount: "30%", net: 105 },
+            { title: "أصول الحديث علومه ومصطلحه", author: "محمد عجاج الخطيب", type: "مجلد", price: 195, discount: "30%", net: 136.5 },
+            { title: "اعانة المستفيد شرح كتاب التوحيد ورق شمواه", author: "صالح الفوزان", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+            { title: "أيسر الشروح على الاجرومية 2 لون شمواه", author: "عبد العزيز الحربي", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+            { title: "ايضاح القواعد الفقهية 2 لون ورق شمواه", author: "اللحجي", type: "غلاف", price: 85, discount: "30%", net: 59.5 },
+            { title: "البلاغة الميسرة لون 2 شمواه", author: "عبد العزيز الحربي", type: "غلاف", price: 55, discount: "30%", net: 38.5 },
+            { title: "البلاغة الواضحة 2 لون شمواه جديد", author: "على الجارم", type: "مجلد", price: 160, discount: "30%", net: 112 },
+            { title: "بلوغ المرام ورق شمواه تحقيق وتعليق ماهر يس الفحل", author: "ابن حجر / ماهر الفحل", type: "مجلد", price: 215, discount: "30%", net: 150.5 },
+            { title: "بدائع الصنائع في ترتيب الشرائع 9/1 ورق شمواه", author: "الكاساني / محمد نصر", type: "مجلد 9", price: 3655, discount: "30%", net: 2559 },
+            { title: "بداية المجتهد ونهاية المقتصد", author: "ابن رشد", type: "مجلد", price: 380, discount: "30%", net: 266 },
+            { title: "البدر الطالع في شرح جمع الجوامع", author: "المحلي", type: "مجلد", price: 360, discount: "30%", net: 252 },
+            { title: "بهجة قلوب الابرار", author: "السعدي", type: "غلاف", price: 80, discount: "30%", net: 56 },
+            { title: "التفسير الميسر نص 17×24", author: "نخبة من العلماء", type: "مجلد", price: 220, discount: "30%", net: 154 },
+            { title: "تفسير القرآن العظيم (ابن كثير) لون 4/1 شمواه", author: "ابن كثير", type: "مجلدات 4", price: 1220, discount: "30%", net: 854 },
+            { title: "صحيح البخاري ورق شمواه 2 لون مشكول", author: "البخاري", type: "مجلد", price: 270, discount: "10%", net: 243 },
+            { title: "صحيح مسلم ورق شمواه 2 لون مشكول", author: "مسلم", type: "مجلد", price: 225, discount: "10%", net: 202.5 },
+            { title: "الشرح الممتع على زاد المستقنع 1/7", author: "ابن عثيمين", type: "مجلد 7", price: 2195, discount: "30%", net: 1537 },
+            { title: "شرح رياض الصالحين 1/4 لون شمواه", author: "ابن عثيمين", type: "مجلد 4", price: 730, discount: "30%", net: 511 }
+        ];
+
+        let cart = [];
+
+        function toAr(num) {
+            return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+        }
+
+        function renderBooks(data) {
+            const tbody = document.getElementById('booksTableBody');
+            const statsBar = document.getElementById('statsBar');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">لا توجد كتب تطابق هذا البحث 🕊️</td></tr>`;
+                statsBar.textContent = `عدد الكتب المتاحة: ٠ عناوين`;
+                return;
+            }
+
+            tbody.innerHTML = data.map((b, index) => `
+                <tr>
+                    <td class="book-title">${b.title}</td>
+                    <td>${b.author}</td>
+                    <td><span class="badge-type">${b.type}</span></td>
+                    <td class="price-old">${toAr(b.price)} ج.م</td>
+                    <td><span class="discount-pct">${toAr(b.discount)}</span></td>
+                    <td class="price-net">${toAr(b.net)} ج.م</td>
+                    <td><button class="btn-add" onclick="addToCart(${index})">إضافة</button></td>
+                </tr>
+            `).join('');
+
+            statsBar.textContent = `عدد العناوين المتاحة حالياً: ${toAr(data.length)} كتاب معتمد قيد العرض`;
+        }
+
+        function filterBooks() {
+            const query = document.getElementById('searchInp').value.trim();
+            if (!query) {
+                renderBooks(booksData);
+                return;
+            }
+            const filtered = booksData.filter(b => 
+                b.title.includes(query) || 
+                b.author.includes(query) || 
+                b.type.includes(query)
+            );
+            renderBooks(filtered);
+        }
+
+        function addToCart(index) {
+            const book = booksData[index];
+            cart.push(book);
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const panel = document.getElementById('cartPanel');
+            const countEl = document.getElementById('cartCount');
+            const totalEl = document.getElementById('cartTotal');
+
+            if (cart.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+
+            panel.style.display = 'flex';
+            countEl.textContent = toAr(cart.length);
+            
+            const total = cart.reduce((sum, book) => sum + book.net, 0);
+            totalEl.textContent = toAr(total.toFixed(1));
+        }
+
+        // تشغيل فوري وضخ البيانات عند التحميل
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBooks(booksData);
+        });
+    </script>
+</body>
+</html>
+
