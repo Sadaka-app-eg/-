@@ -8,10 +8,12 @@
     <meta name="theme-color" content="#8b6914" id="themeMetaColor">
     <link rel="icon" href="icon-192.png">
     <link rel="apple-touch-icon" href="icon-192.png">
+    
     <!-- وسوم مخصصة للتحكم في حافة الشحن والساعة على الآيفون -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
         /* ☀️ المتغيرات الافتراضية للوضع الفاتح الكلاسيكي */
         :root {
@@ -27,7 +29,7 @@
             --header-border: #8b6914;
         }
 
-        /* 🌙 المتغيرات الخاصة بالوضع الليلي الفخم (تمت زيادة القوة البرمجية لـ :root) */
+        /* 🌙 المتغيرات الخاصة بالوضع الليلي الفخم */
         :root[data-theme="dark"] {
             --bg: #0d1117;
             --card-bg: #161b22;
@@ -82,7 +84,7 @@
             font-size: 14px;
         }
 
-        /* ☀️ زر التبديل العائم والمؤمن تماماً في زاوية الشاشة السفلية */
+        /* ☀️ زر التبديل العائم والمؤمن تماماً في زاوية الشاشة السفلية يميناً */
         .theme-toggle-btn {
             position: fixed;
             bottom: 20px;
@@ -271,10 +273,6 @@
             font-weight: 600;
         }
 
-        @media (max-width: 600px) {
-            body { padding: 10px; }
-            header { padding: 40px 15px 20px; }
-        }
         /* ✨ أنيميشن شاشة الترحيب الفخمة للدار العالمية */
         @keyframes bookPulse {
             0% { transform: scale(0.95); filter: drop-shadow(0 0 15px rgba(205, 168, 105, 0.2)); }
@@ -320,15 +318,22 @@
             animation: textFadeUp 1s ease-out forwards;
             animation-delay: 0.6s;
         }
+
+        @media (max-width: 600px) {
+            body { padding: 10px; }
+            header { padding: 25px 15px; }
+        }
     </style>
 </head>
 <body>
-<!-- شاشة الترحيب الذكية (Splash Screen) -->
+
+    <!-- شاشة الترحيب الذكية (Splash Screen) -->
     <div id="splashScreen" class="splash-wrapper">
         <div class="splash-icon">📚</div>
         <div class="splash-title">الدار العالمية للنشر والتجليد</div>
         <div class="splash-subtitle">✨ خزانة العلوم الشرعية وأمهات الكتب التراثية ✨</div>
     </div>
+
     <header>
         <!-- زر التبديل الذكي -->
         <button class="theme-toggle-btn" id="themeToggle" onclick="toggleThemeSystem()" title="تبديل مظهر الإضاءة">☀️</button>
@@ -368,7 +373,7 @@
         <button class="cart-clear" onclick="clearCart()">تصفير</button>
     </div>
 
-    <!-- استدعاء المصفوفة الضخمة المرتبة الكاملة حرفياً -->
+    <!-- استدعاء مصفوفة الكتب من الملف الخارجي الموحد -->
     <script src="books.js"></script>
     <script>
         // دالة تحويل الأرقام إلى النسق الشرقي المنسق بالكامل
@@ -419,15 +424,16 @@
             renderBooks(filtered);
         }
 
-        let cart = [];
+        // 💡 تم مسح لغز تكرار Let Cart المسبب للـ Crash الميكانيكي
         function addToCart(index) {
+            if(!window.cart) window.cart = [];
             const book = window.booksData[index];
-            cart.push(book);
+            window.cart.push(book);
             updateCartUI();
         }
 
         function clearCart() {
-            cart = [];
+            window.cart = [];
             updateCartUI();
         }
 
@@ -436,20 +442,20 @@
             const countEl = document.getElementById('cartCount');
             const totalEl = document.getElementById('cartTotal');
 
-            if (cart.length === 0) {
+            if (!window.cart || window.cart.length === 0) {
                 if(panel) panel.style.display = 'none';
                 return;
             }
 
             if(panel) panel.style.display = 'flex';
-            if(countEl) countEl.textContent = toAr(cart.length);
+            if(countEl) countEl.textContent = toAr(window.cart.length);
             
-            const total = cart.reduce((sum, book) => sum + book.net, 0);
+            const total = window.cart.reduce((sum, book) => sum + book.net, 0);
             if(totalEl) totalEl.textContent = toAr(total.toFixed(1));
         }
 
         // =========================================================================
-        // 🌓 نظام إدارة الـ Dark Mode التفاعلي مع الذاكرة المحلية (LocalStorage)
+        // 🌓 نظام إدارة الـ Dark Mode التفاعلي
         // =========================================================================
         function toggleThemeSystem() {
             const currentTheme = document.documentElement.getAttribute('data-theme');
@@ -462,7 +468,7 @@
             applyTheme(targetTheme);
         }
 
-       function applyTheme(theme) {
+        function applyTheme(theme) {
             const btn = document.getElementById('themeToggle');
             const meta = document.getElementById('themeMetaColor');
             const cartPanel = document.getElementById('cartPanel');
@@ -472,43 +478,41 @@
 
             if (theme === 'dark') {
                 if(btn) btn.textContent = '🌙';
-                if(meta) meta.setAttribute('content', '#0d1117'); // تلوين حافة الشحن بالأسود الفخم
+                if(meta) meta.setAttribute('content', '#0d1117');
                 if(cartPanel) cartPanel.setAttribute('data-cart-theme', 'dark');
             } else {
                 if(btn) btn.textContent = '☀️';
-                if(meta) meta.setAttribute('content', '#f8f6f0'); // تلوين الحافة باللون العاجي المريح
+                if(meta) meta.setAttribute('content', '#f8f6f0');
                 if(cartPanel) cartPanel.removeAttribute('data-cart-theme');
             }
         }
 
         // تشغيل المحرك فور تحميل الصفحة
         document.addEventListener('DOMContentLoaded', () => {
-            // استرجاع المظهر المحفوظ أو استخدام الفاتح كافتراضي
             const savedTheme = localStorage.getItem('library_theme') || 'light';
             applyTheme(savedTheme);
 
-            // تأمين تحميل المصفوفة من ملف books.js الموحد على جيت هاب
             if (window.booksData) {
                 renderBooks(window.booksData);
             }
-            // ⏳ مؤقت إخفاء شاشة الترحيب بعد 3 ثوانٍ بالظبط
+
+            // ⏳ مؤقت إخفاء شاشة الترحيب بنعومة فائقة بعد 3 ثوانٍ بالتمام والكمال
             setTimeout(() => {
                 const splash = document.getElementById('splashScreen');
                 if (splash) {
                     splash.style.opacity = '0';
                     splash.style.visibility = 'hidden';
-                    setTimeout(() => splash.remove(), 600); // حذفها تماماً من الـ DOM بعد الاختفاء
+                    setTimeout(() => splash.remove(), 600);
                 }
-            }, 3000);
+            }, 2000);
         });
 
-        // تسجيل الـ Service Worker
+        // تسجيل الـ Service Worker للمزامنة أوفلاين
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
         }
     </script>
-
 </body>
 </html>
