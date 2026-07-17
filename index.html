@@ -319,9 +319,106 @@
             animation-delay: 0.6s;
         }
 
+       /* 📱 هندسة العرض الذكي بملء الشاشة والملمح الواحد للموبايل */
         @media (max-width: 600px) {
-            body { padding: 10px; }
-            header { padding: 25px 15px; }
+            body { 
+                padding: 8px; 
+            }
+            header { 
+                padding: 20px 12px; 
+                margin-bottom: 15px;
+            }
+            header h1 {
+                font-size: 22px;
+            }
+            .controls-wrapper {
+                padding: 10px;
+                margin-bottom: 15px;
+                gap: 8px;
+            }
+            .search-box {
+                padding: 10px;
+                font-size: 13px;
+            }
+
+            /* سحر تفكيك الجدول وتحويله لكروت مدمجة تظهر بالكامل أمام العين */
+            .table-container {
+                border: none;
+                background: transparent;
+                box-shadow: none;
+            }
+            table, thead, tbody, th, td, tr { 
+                display: block; 
+                width: 100%;
+            }
+            thead { 
+                display: none; 
+            }
+            
+            /* تحويل كل سطر كتاب إلى كارت مستقل فخم ومريح */
+            tr {
+                background: var(--card-bg);
+                border: 1px solid var(--border);
+                border-right: 4px solid var(--primary);
+                border-radius: 12px;
+                padding: 12px;
+                margin-bottom: 10px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.01);
+                position: relative;
+            }
+            
+            /* إعادة توزيع الخلايا لتظهر تحت بعضها بنسق طولي مدمج */
+            td { 
+                text-align: right;
+                padding: 4px 0;
+                border-bottom: none;
+                white-space: normal; 
+                font-size: 13px;
+            }
+            
+            /* تمييز اسم الكتاب ليكون في الصدارة */
+            td:first-child {
+                padding-bottom: 6px;
+                border-bottom: 1px dashed var(--border);
+                margin-bottom: 6px;
+                width: calc(100% - 70px); 
+            }
+            .book-title {
+                font-size: 16px;
+                line-height: 1.4;
+            }
+
+            /* إظهار كرت المؤلف والنوع والأسعار جنب بعض في سطر مدمج ونظيف */
+            td:nth-child(2), td:nth-child(3), td:nth-child(4), td:nth-child(5), td:nth-child(6) {
+                display: inline-block;
+                width: auto;
+                margin-left: 10px;
+                color: var(--text-muted);
+            }
+            
+            td:nth-child(2)::before { content: "المؤلف: "; font-size: 11px; color: var(--primary); }
+            
+            /* إبراز السعر الصافي ليكون واضحاً */
+            td:nth-child(6) {
+                display: block;
+                margin-top: 4px;
+                font-size: 15px;
+            }
+            td:nth-child(6)::before { content: "الصافي: "; font-size: 12px; color: var(--text-muted); font-weight: normal; }
+
+            /* نقل زر الشراء ليكون عائماً ومثبتاً في زاوية الكارت يميناً بروقان */
+            td:last-child {
+                position: absolute;
+                top: 12px;
+                left: 12px;
+                width: auto;
+                padding: 0;
+            }
+            .btn-add {
+                padding: 6px 14px;
+                font-size: 12px;
+                border-radius: 6px;
+            }
         }
     </style>
 </head>
