@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>معرض الدار العالمية للنشر والتجليد</title>
+    <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #f8f6f0;
+            --card-bg: #ffffff;
+            --primary: #8b6914;
+            --primary-light: rgba(139, 105, 20, 0.1);
+            --text-main: #2c2212;
+            --text-muted: #6e614c;
+            --border: rgba(139, 105, 20, 0.15);
+            --green: #2e7d32;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            border-bottom: 4px solid var(--primary);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+
+        header h1 {
+            font-family: 'Amiri', serif;
+            color: var(--primary);
+            font-size: 28px;
+            margin-bottom: 8px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .controls-wrapper {
+            background: var(--card-bg);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            margin-bottom: 20px;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            font-family: inherit;
+            outline: none;
+            font-size: 14px;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary);
+        }
+
+        .stats-bar {
+            font-size: 13px;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            width: 100%;
+            margin-top: 5px;
+        }
+
+        .table-container {
+            background: var(--card-bg);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            overflow-x: auto;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.01);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: right;
+            font-size: 14px;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        th {
+            background-color: var(--primary-light);
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        tr:hover {
+            background-color: rgba(139, 105, 20, 0.02);
+        }
+
+        .book-title {
+            font-family: 'Amiri', serif;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-main);
+            white-space: normal;
+            min-width: 250px;
+        }
+
+        .badge-type {
+            background: #eee;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            color: #555;
+            font-weight: 600;
+        }
+
+        .price-old {
+            text-decoration: line-through;
+            color: #999;
+            font-size: 12px;
+        }
+
+        .price-net {
+            color: var(--green);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .discount-pct {
+            background: rgba(46, 125, 50, 0.1);
+            color: var(--green);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .btn-add {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 12px;
+            transition: opacity 0.2s;
+        }
+
+        .btn-add:hover {
+            opacity: 0.9;
+        }
+
+        /* سلة الفاتورة السريعة */
+        .cart-panel {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: #2c2212;
+            color: #fff;
+            padding: 15px 20px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            z-index: 1000;
+            display: none;
+        }
+
+        .cart-panel span {
+            font-weight: bold;
+            color: #f4d35e;
+        }
+
+        .cart-clear {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.3);
+            color: #ff8c00;
+            padding: 4px 8px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>📚 معرض كتب الدار العالمية للنشر والتجليد</h1>
+        <p>قائمة العناوين والأسعار المخفضة لشهر أبريل 2026 — مكتبات وتوزيع</p>
+    </header>
+
+    <div class="controls-wrapper">
+        <input type="text" class="search-box" id="searchInp" placeholder="🔍 ابحث باسم الكتاب، المؤلف، أو المحقق..." oninput="filterBooks()">
+        <div class="stats-bar" id="statsBar">جاري تحميل الكتب...</div>
+    </div>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>اسم الكتـاب</th>
+                    <th>المؤلف</th>
+                    <th>النوع</th>
+                    <th>السعر الرسمي</th>
+                    <th>الخصم</th>
+                    <th>الصافي</th>
+                    <th>شراء</th>
+                </tr>
+            </thead>
+            <tbody id="booksTableBody">
+                <!-- ضخ البيانات بالجافا سكريبت -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="cart-panel" id="cartPanel">
+        <div>المختارة: <span id="cartCount">٠</span> كتب | الإجمالي الصافي: <span id="cartTotal">٠</span> ج.م</div>
+        <button class="cart-clear" onclick="clearCart()">تصفير</button>
+    </div>
+
+    <script>
+        // مصفوفة قائمة الكتب والأسعار المأخوذة من الداتا بالملي
+ const booksData = [
+    // === القسم الأول: قائمة الكتب الأساسية بخصم 30% ===
+    { title: "الأذكار - طبعة مشكولة لون2", author: "النووي", type: "مجلد", price: 200, discount: "30%", net: 140 },
+    { title: "الارشاد الى صحيح الاعتقاد", author: "الفوزان", type: "مجلد", price: 155, discount: "30%", net: 108.5 },
+    { title: "الأشباه والنظائر في قواعد وفروع الفقه الشافعي", author: "السيوطي", type: "مجلد", price: 285, discount: "30%", net: 199.5 },
+    { title: "الاتقان في علوم القرآن 2 لون شمواه - تحقيق محمد نصر ابي جبل -", author: "السيوطي", type: "مجلد", price: 295, discount: "30%", net: 206.5 },
+    { title: "الاقناع في حل الفاظ ابى شجاع 2 لون شمواه", author: "الخطيب الشربيني", type: "مجلد", price: 330, discount: "30%", net: 231 },
+    { title: "الفية العراقي في علوم الحديث 2 لون شمواه (وسط )1712", author: "الحافظ العراقي", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "ايسر التفاسير 21/3 لون ورق شمواه", author: "ابوبكر الجزائري", type: "مجلد 3", price: 855, discount: "30%", net: 598.5 },
+    { title: "اعانة الطالبين على حل الفاظ فتح المعين 4/1 ورق شمواه 2 لون - جديد", author: "محمد شطا الدمياطي", type: "مجلد 4", price: 1145, discount: "30%", net: 801.5 },
+    { title: "اعراب القرآن الكريم 1/6 مجلد ورق شمواه 2 لون", author: "مجموعة علماء", type: "مجلدات 6", price: 1400, discount: "30%", net: 980 },
+    { title: "ابانه الاحكام شرح بلوغ المرام 1/2", author: "حسن نووي / علوي عباس", type: "مجلد2", price: 550, discount: "30%", net: 385 },
+    { title: "اتحاف القاري شرح السنة للبربهاري 2 لون شمواه", author: "الفوزان", type: "مجلد", price: 185, discount: "30%", net: 129.5 },
+    { title: "ارشاد الساري شرح السنة للبربهاري لون 2 شمواه", author: "النجمي", type: "مجلد", price: 165, discount: "30%", net: 115.5 },
+    { title: "احياء علوم الدين 1/5 - مذيلا بتعلقات عقدية هامة ورق شمواه لون2", author: "الغزالي", type: "مجلد5", price: 1145, discount: "30%", net: 801.5 },
+    { title: "احاديث الاذكار والادعية ورق شمواه لون 2 جديد", author: "عبد الرزاق البدر", type: "مجلد", price: 285, discount: "30%", net: 199.5 },
+    { title: "احاديث الايمان ورق شمواه لون 2 جديد", author: "عبد الرزاق البدر", type: "مجلد", price: 175, discount: "30%", net: 122.5 },
+    { title: "احاديث اصلاح القلوب ورق شمواه لون 2 جديد", author: "عبد الرزاق البدر", type: "مجلد", price: 285, discount: "30%", net: 199.5 },
+    { title: "احاديث الاخلاق ورق شمواه لون 2 جديد", author: "عبد الرزاق البدر", type: "مجلد", price: 200, discount: "30%", net: 140 },
+    { title: "آداب البحث والمناظرة", author: "محمد الأمين الشنقيطي", type: "مجلد", price: 160, discount: "30%", net: 112 },
+    { title: "أصول الإيمان", author: "نخبة من العلماء", type: "مجلد", price: 150, discount: "30%", net: 105 },
+    { title: "أصول الحديث علومه ومصطلحه توزيع.", author: "محمد عجاج الخطيب", type: "مجلد", price: 195, discount: "30%", net: 136.5 },
+    { title: "اعانة المستفيد شرح كتاب التوحيد ورق شمواه - طبعة جديدة", author: "صالح الفوزان", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+    { title: "أيسر الشروح على الاجرومية لون 2 شمواه", author: "عبد العزيز الحربي", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+    { title: "ايضاح القواعد الفقهية 2 لون ورق شمواه", author: "اللحجي", type: "غلاف", price: 85, discount: "30%", net: 59.5 },
+    { title: "البلاغة الميسرة لون 2 شمواه", author: "عبد العزيز الحربي", type: "غلاف", price: 55, discount: "30%", net: 38.5 },
+    { title: "البلاغة الواضحة 2 لون شمواه جديد", author: "على الجارم", type: "مجلد", price: 160, discount: "30%", net: 112 },
+    { title: "بلوغ المرام ورق شمواه لون 2 تحقيق وتعليق ماهريس الفحل", author: "ابن حجر - ماهر يس الفحل", type: "مجلد", price: 215, discount: "30%", net: 150.5 },
+    { title: "بدائع الصنائع في ترتيب الشرائع 9/1 ورق شمواه لون 1 جديد", author: "الكاساني محمد نصر ابوجبل", type: "مجلد و", price: 3655, discount: "30%", net: 2559 },
+    { title: "بداية المجتهد ونهاية المقتصد مجلد واحد", author: "ابن رشد", type: "مجلد", price: 380, discount: "30%", net: 266 },
+    { title: "البدر الطالع في شرح جمع الجوامع جديد", author: "المحلي", type: "مجلد", price: 360, discount: "30%", net: 252 },
+    { title: "بغية المشتاق شرح اللمع مجلد فني شمواه لون 2 جديد", author: "محمد ياسين الفاداني", type: "مجلد", price: 200, discount: "30%", net: 140 },
+    { title: "بهجة قلوب الابرار", author: "السعدي", type: "غلاف", price: 80, discount: "30%", net: 56 },
+    { title: "تحفة الأحوذي شرح سنن الترمذي 10/1 مجلد شمواه - موافقة للطبعة الهندية جديد", author: "المباركفوري - محمد نصر", type: "مجلد 10", price: 3900, discount: "30%", net: 2730 },
+    { title: "التنبيهات السنية على العقيدة الواسطية ورق شمواه جديد", author: "عبد العزيز الرشيد", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+    { title: "التمهيد شرح كتاب التوحيد ورق شمواه فني توزيع", author: "صالح آل الشيخ", type: "مجلد", price: 265, discount: "30%", net: 185.5 },
+    { title: "التطبيق النحوي ورق شمواه 2 لون - طبعة جديدة مضبوطة مجلد", author: "عبده الراجحي", type: "سلوفان", price: 245, discount: "30%", net: 171.5 },
+    { title: "التطبيق الصرفي ورق شمواه 2 لون - طبعة جديدة مضبوطة - مجلد", author: "عبده الراجحي", type: "سلوفان", price: 160, discount: "30%", net: 112 },
+    { title: "التفسير الميسر نص 17×24", author: "نخبة من العلماء", type: "مجلد", price: 220, discount: "30%", net: 154 },
+    { title: "التمهيد لما في الموطأ من المعاني والاسانيد 12/1 ورق شمواه 1 لون جديد", author: "ابن عبد البر - محمد نصر ابوجبل", type: "مجلد 12", price: 4570, discount: "30%", net: 3199 },
+    { title: "الأخلاق والسير في مداواة النفوس جديد", author: "ابن حزم", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "التبيان شرح أخلاق حملة القرآن للأجري لون 2 شمواه", author: "عبد الرزاق البدر", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "التبيان في علوم القرآن لون 2 شمواه", author: "محمد علي الصابوني", type: "مجلد", price: 150, discount: "30%", net: 105 },
+    { title: "التجويد الميسر طبعة جديدة مجلد", author: "علي الحذيفي", type: "مجلد", price: 100, discount: "30%", net: 70 },
+    { title: "التعليق الحثيث على تيسير مصطلح الحديث لون 2 شمواه", author: "محمود الطحان / محمد نصر لتعجيل", type: "مجلد", price: 130, discount: "30%", net: 91 },
+    { title: "التعليقات على متن العقيدة الطحاوية جديد", author: "صالح الفوزان", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "تنبيهات علي احكام تختص بالمؤمنات جديد", author: "صالح الفوزان", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "التسهيل لعلوم التنزيل 1/2 مجلد", author: "ابن جزي", type: "مجلد2", price: 645, discount: "30%", net: 451.5 },
+    { title: "التحفة السينية شرح الاجرومية لون 2 شمواه", author: "محمد محيى الدين عبد الحميد", type: "غلاف", price: 70, discount: "30%", net: 49 },
+    { title: "التحفة السينية شرح الاجرومية - ورق شمواه لون 2 - محققة جديد", author: "محمد محي الدين / النهدي", type: "مجلد", price: 230, discount: "30%", net: 161 },
+    { title: "تاريخ الخلفاء 2 لون شمواه", author: "السيوطي", type: "مجلد", price: 235, discount: "30%", net: 164.5 },
+    { title: "تدريب الراوي شرح تقريب النواوي شمواه", author: "السيوطي / محمد ابوجبل", type: "مجلد", price: 260, discount: "30%", net: 182 },
+    { title: "تذكرة السامع والمتكلم لون 2 شمواه", author: "ابن جماعة", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+    { title: "تعليق على شرح السنة للمزني لون 2 شمواه", author: "عبد الرزاق البدر", type: "غلاف", price: 60, discount: "30%", net: 42 },
+    { title: "تعليم المتعلم طريق التعلم", author: "برهان الدين الزرنوجي", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "تفسير الكشاف وبحاشيته كتاب الانتصاف 6/1 ورق شمواه 2 لون", author: "الزمخشري - محمد نصر ابوجبل", type: "مجلدات 6", price: 1740, discount: "30%", net: 1218 },
+    { title: "تفسير التحرير والتنوير 16/1 شمواه 2 لون جديد", author: "الطاهر ابن عاشور", type: "مجلد 16", price: 5715, discount: "30%", net: 4001 },
+    { title: "تفسير البيضاوي 1/4 (انوار التنزيل) لون 2 شمواه جديد", author: "البيضاوي", type: "مجلد 2", price: 1000, discount: "30%", net: 700 },
+    { title: "تفسير السعدي 2 لون شمواه", author: "السعدي", type: "مجلد", price: 355, discount: "30%", net: 248.5 },
+    { title: "تفسير القرآن العظيم ( ابن كثير ) لون 1/4 2 شمواه", author: "ابن كثير", type: "مجلدات 4", price: 1220, discount: "30%", net: 854 },
+    { title: "تلبيس ابليس", author: "ابن الجوزي", type: "مجلد", price: 225, discount: "30%", net: 157.5 },
+    { title: "توضيح الاحكام شرح بلوغ المرام 2 لون 1/4 شمواه", author: "البسام", type: "مجلدات 4", price: 1200, discount: "30%", net: 840 },
+    { title: "تيسير العلام شرح عمدة الاحكام مجلد واحد", author: "عبد الله البسام", type: "مجلد", price: 300, discount: "30%", net: 210 },
+    { title: "الجامع لاخلاق الراوي واداب السامع 2 2/1 لون شمواه جديد", author: "الخطيب البغدادي", type: "مجلد 2", price: 430, discount: "30%", net: 301 },
+    { title: "الجديد في شرح كتاب التوحيد ورق شمواه لون 2 جديد", author: "محمد عبد العزيز القرعاوي", type: "مجلد", price: 200, discount: "30%", net: 140 },
+    { title: "جامع الدروس العربية 2 لون شمواه مع التشجير)", author: "مصطفى الغلاييني", type: "مجلد", price: 295, discount: "30%", net: 206.5 },
+    { title: "جامع المتون العلمية 4 مستويات 2/1 مجلد جديد", author: "مجموعة علماء", type: "سلوفان", price: 500, discount: "30%", net: 350 },
+    { title: "جامع فتاوى المرأة المسلمة جديد", author: "مجموعة علماء", type: "سلوفان", price: 285, discount: "30%", net: 199.5 },
+    { title: "جوامع الادعية النبوية ورق شمواه لون 2 جديد", author: "عبد الرزاق البدر", type: "مجلد", price: 175, discount: "30%", net: 122.5 },
+    { title: "حاشية الصبان 4/1 العالمية .. جديد", author: "الصبان", type: "مجلد4", price: 1075, discount: "30%", net: 752.5 },
+    { title: "حاشية البيجوري على فتح القريب المجيب 1/2 ورق شمواه", author: "الاجوري", type: "مجلد2", price: 610, discount: "30%", net: 427 },
+    { title: "حاشية الخضري 2 مجلد 2 لون شموا جديد", author: "الخضري", type: "2 مجلد", price: 500, discount: "30%", net: 350 },
+    { title: "جمع الجوامع غلاف جديد", author: "السبكي", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "حواشي الشرواني وابن قاسم على تحفة المحتاج 1/10 قطع كبير)", author: "الشرواني والعبادي", type: "مجلد 10", price: 2800, discount: "30%", net: 1960 },
+    { title: "حصن المسلم مشكولة بالكامل جيب 160 صفحة ورق أبيض.", author: "سعيد بن وهف القحطاني", type: "غلاف", price: 13, discount: "30%", net: 9.1 },
+    { title: "حياة الصحابة مجلد واحد", author: "الكاندهلوي", type: "مجلد", price: 410, discount: "30%", net: 287 },
+    { title: "حقبة من التاريخ مجلد فني", author: "عثمان الخميس", type: "مجلد", price: 185, discount: "30%", net: 129.5 },
+    { title: "حلية الأولياء وطبقات الاصفياء 1/7 مجلد لون 2 ورق شمواه", author: "ابو نعيم الأصبهاني", type: "مجلد 7", price: 2025, discount: "30%", net: 1418 },
+    { title: "خلاصة نور اليقين في سيرة سيد المرسلين مشكولة وسط .", author: "عمر عبد الجبار", type: "غلاف", price: 60, discount: "30%", net: 42 },
+    { title: "الداء والدواء لون 2 شمواه - طبعة منقحة ومخرجة الاحاديث جديد", author: "ابن القيم", type: "مجلد", price: 160, discount: "30%", net: 112 },
+    { title: "الدرر البهية من المسائل الفقهية شمواه - وسط", author: "الشوكاني", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "دليل الفالحين لطرق رياض الصالحين 1/4 شمواه", author: "ابن علان", type: "مجلد 4", price: 975, discount: "30%", net: 682.5 },
+    { title: "دليل الطالب لنيل المطالب جديد", author: "مراعي بن يوسف الحنبلي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "دروس اللغة العربية لغير الناطقين بها", author: "ف. عبد الرحيم", type: "مجلد", price: 235, discount: "30%", net: 164.5 },
+    { title: "دعائم منهاج النبوة شمواه", author: "محمد رسلان", type: "مجلد", price: 200, discount: "30%", net: 140 },
+    { title: "دفع ايهام الاضطراب", author: "محمد الأمين الشنقيطي", type: "مجلد", price: 160, discount: "30%", net: 112 },
+    { title: "ديوان الشافعي 2 لون ورق شمواه", author: "الامام الشافعي", type: "غلاف", price: 60, discount: "30%", net: 42 },
+    { title: "الروض المربع شرح زاد المستقنع لون 2 شمواه", author: "البهوتي", type: "مجلد", price: 250, discount: "30%", net: 175 },
+    { title: "الرسالة في أصول الفقه", author: "الشافعي - احمد شاكر", type: "مجلد", price: 255, discount: "30%", net: 178.5 },
+    { title: "روضة الأنوار في سيرة النبي المختار", author: "صفي الرحمن المباركفوري", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+    { title: "روضة العقلاء 2 لون ورق شمواه جديد", author: "ابن حبان", type: "مجلد", price: 165, discount: "30%", net: 115.5 },
+    { title: "روضة الناظر في اصول الفقه مجلد واحد", author: "ابن قدامة", type: "مجلد", price: 390, discount: "30%", net: 273 },
+    { title: "روضة الطالبين 6/1 ورق شمواه 1 لون جديد", author: "النووي - احمد شعبان", type: "مجلدات 6", price: 2145, discount: "30%", net: 1502 },
+    { title: "روح المعاني 1/15 شمواه لون2 جديد", author: "الالوسي - محمد نصر ابوجبل", type: "مجلد 15", price: 4700, discount: "30%", net: 3290 },
+    { title: "روضة المحبين ونزهة المشتاقين جديد", author: "ابن القيم", type: "مجلد", price: 215, discount: "30%", net: 150.5 },
+    { title: "رياض الصالحين 2 لون شمواه / محمد نصر ابوجبل", author: "النووي", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+    { title: "رياض الصالحين 2 لون شمواه مضغوط", author: "النووي", type: "مجلد", price: 190, discount: "30%", net: 133 },
+    { title: "زاد المعاد 2 1/2 لون شمواه", author: "ابن القيم", type: "مجلد2", price: 645, discount: "30%", net: 451.5 },
+    { title: "السيرة النبوية 1/2 ورق شمواه", author: "ابن هشام", type: "مجلد 2", price: 575, discount: "30%", net: 402.5 },
+    { title: "سلسلة شرح الرسائل 2 1/2 لون شمواه", author: "صالح الفوزان", type: "مجلد 2", price: 475, discount: "30%", net: 332.5 },
+    { title: "سلسلة شرح الرسائل مجلد واحد لون 2 شمواه جديد", author: "صالح الفوزان", type: "مجلد", price: 190, discount: "30%", net: 133 },
+    { title: "سبل السلام شرح بلوغ المرام 2 1/4 لون شمواه", author: "الصنعاني", type: "مجلد 4", price: 745, discount: "30%", net: 521.5 },
+    { title: "است درر من اصول اهل الاثر لون 2 شمواه .", author: "عبد المالك رمضاني", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "سنن الدارمي ورق شمواه لون واحد مجلد واحد", author: "الدارمي", type: "مجلد", price: 670, discount: "30%", net: 469 },
+    { title: "سنن ابن ماجه ورق شمواه 2 لون مشكولة", author: "الامام ابن ماجه", type: "مجلد", price: 275, discount: "30%", net: 192.5 },
+    { title: "سنن أبي داوود ورق شمواه لون 2 مشكولة", author: "الامام ابوداوود", type: "مجلد", price: 305, discount: "30%", net: 213.5 },
+    { title: "سنن الترمذي ورق شمواه 2 لون مشكولة", author: "الامام الترمذي", type: "مجلد", price: 355, discount: "30%", net: 248.5 },
+    { title: "سنن النسائي ورق شمواه لون 2 مشكولة", author: "الامام النسائي", type: "مجلد", price: 365, discount: "30%", net: 255.5 },
+    { title: "الشمائل المحمدية .", author: "الترمذي", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+    { title: "شرح الارجوزة الميئية في ذكر حال اشرف البرية", author: "عبد الرزاق البدر", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "شرح تعليم المتعلم غلاف لون 2 شمواه جديد", author: "إبراهيم إسماعيل", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "شرح أصول السنة 1/2 جديد", author: "فلاح مندكار", type: "مجلد 2", price: 575, discount: "30%", net: 402.5 },
+    { title: "شرح اصول السنة للامام احمد بن حنبل غلاف", author: "ربيع بن هادي", type: "غلاف", price: 60, discount: "30%", net: 42 },
+    { title: "الأدب المفرد للبخاري 1/4 ورق شمواه شرح كتاب", author: "محمد سعيد رسلان", type: "مجلد4", price: 1220, discount: "30%", net: 854 },
+    { title: "شرح الياقوت النفيس في مذهب الشافعي ابن ادريس 1/2", author: "احمد الشاطري", type: "مجلد2", price: 415, discount: "30%", net: 290.5 },
+    { title: "شرح العقيدة الواسطية 2 لون شمواه هراس", author: "محمد خليل هراس", type: "غلاف", price: 60, discount: "30%", net: 42 },
+    { title: "شرح العقيدة الواسطية 2 لون شمواه فوزان", author: "صالح الفوزان", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+    { title: "شرح لمعة الاعتقاد - لون 2 شمواه فوزان", author: "صالح الفوزان", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح مسائل الجاهلية - لون 2 شمواه فوزان", author: "صالح الفوزان", type: "غلاف", price: 85, discount: "30%", net: 59.5 },
+    { title: "شرح الأصول الثلاثة - 2 لون شمواه فوزان", author: "صالح الفوزان", type: "غلاف", price: 80, discount: "30%", net: 56 },
+    { title: "شرح الأصول الستة - 2 لون شمواه فوزان", author: "صالح الفوزان", type: "غلاف", price: 30, discount: "30%", net: 21 },
+    { title: "شرح تفسير كلمة التوحيد - لون 2 شمواه فوزان", author: "صالح الفوزان", type: "غلاف", price: 30, discount: "30%", net: 21 },
+    { title: "شرح القواعد الاربع - 2 لون شمواه فوزان", author: "صالح الفوزان", type: "غلاف", price: 30, discount: "30%", net: 21 },
+    { title: "شرح كشف الشبهات لون واحد شمواه فوزان . جديد", author: "صالح الفوزان", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "شرح عقيدة السلف اصحاب الحديث للصابوني مجلد شمواه", author: "ربيع المدخلي", type: "مجلد", price: 195, discount: "30%", net: 136.5 },
+    { title: "شرح صحيح مسلم 1/8 مجلد لون 2 شمواه", author: "النووي - محمد نصر ابوجبل", type: "مجلد 8", price: 2070, discount: "30%", net: 1449 },
+    { title: "شرح العقيدة الطحاوية لون 2 شمواه", author: "ابن ابي العز - عبد الرزاق البدر احمد شاكر", type: "مجلد", price: 235, discount: "30%", net: 164.5 },
+    { title: "شرح شمائل النبي", author: "عبد الرزاق البدر", type: "مجلد", price: 195, discount: "30%", net: 136.5 },
+    { title: "شرح كتاب الكبائر محمد عبد الوهاب", author: "صالح الفوزان", type: "مجلد", price: 220, discount: "30%", net: 154 },
+    { title: "شرح منظومة القواعد الفقهية لون 2 شمواه", author: "السعدي", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "شرح المعلقات السبع 2 لون ورق شمواه", author: "الزوزني - محمد محيي الدين", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح ابن عقيل على الفية ابن مالك 2/1 ورق شمواه لون 2 جديد", author: "ابن عقيل", type: "مجلد 2", price: 460, discount: "30%", net: 322 },
+    { title: "شرح رسالة العبودية لابن تيمية ورق شمواه لون 2 جديد", author: "صالح الفوزان", type: "مجلد", price: 145, discount: "30%", net: 101.5 },
+    { title: "شرح الوسائل المفيدة ورق شمواه - جديد", author: "عبد الرزاق البدر", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "صفوة الزبد في الفقه الشافعي - لون 2 شمواه (وسط (12×17)", author: "ابن رسلان الشافعي", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "صفوة التفاسير 1/3 - ورق شمواه لون 2 - طبعة جديدة مزخرفة", author: "الصابوني", type: "مجلدات 3", price: 855, discount: "30%", net: 598.5 },
+    { title: "الطب النبوي لون 2 شمواه", author: "ابن القيم", type: "مجلد", price: 155, discount: "30%", net: 108.5 },
+    { title: "طريق الهجرتين ورق شمواه", author: "ابن القيم", type: "مجلد", price: 270, discount: "30%", net: 189 },
+    { title: "طريق الوصول الى العلم المأمول", author: "السعدي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "عمدة السالك وعدة الناسك - طبعة مشكولة (وسط (12×)17", author: "ابن النقيب المصري", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "عمدة القاري شرح صحيح البخاري 1/20 مجلد شمواه لون2", author: "البدر العيني / محمد نصر ابو جبل", type: "مجلد 20", price: 6090, discount: "30%", net: 4263 },
+    { title: "عقيدة التوحيد شمواه لون2", author: "صالح الفوزان", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+    { title: "عقيدة السلف وأصحاب الحديث - مشكولة مخرجة الاحاديث غلاف .", author: "عبد الرحمن الصابوني", type: "غلاف", price: 45, discount: "30%", net: 31.5 },
+    { title: "عون المعبود شرح سنن ابي داود 1/8 مجلد 2 لون شمواه", author: "محمد شمس الحف العظيم", type: "مجلد 8", price: 2440, discount: "30%", net: 1708 },
+    { title: "حاشية الجمل على تفسير الجلالين الفتوحات الإلهية 9/1 ورق شمواه", author: "سليمان الجمل", type: "مجلد و", price: 2575, discount: "30%", net: 1803 },
+    { title: "الفقه على المذاهب الاربعة 1/4 ورق شمواه لون2", author: "عبد الرحمن", type: "مجلد4", price: 1135, discount: "30%", net: 794.5 },
+    { title: "الفوائد لون 2 شمواه", author: "ابن القيم", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+    { title: "الفوائد المكية فيما يحتاجه طلبة الشافعية جديد", author: "علوي السقاف", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "الفقة الميسر ورق شمواه", author: "نخبة من العلماء", type: "مجلد", price: 155, discount: "30%", net: 108.5 },
+    { title: "فتح القريب المجيب شرح ألفاظ التقريب", author: "محمد بن قاسم الغزي", type: "مجلد", price: 155, discount: "30%", net: 108.5 },
+    { title: "فتح المجيد شرح كتاب التوحيد تعليقات ابن باز شمواه فني", author: "عبد الرحمن حسن", type: "مجلد", price: 260, discount: "30%", net: 182 },
+    { title: "فتح رب البرية على الدرة البهية نظم الاجرومية ومعه نظم الاجرومية للعمريطي لون 2 شمواه", author: "البيجوري", type: "غلاف", price: 65, discount: "30%", net: 45.5 },
+    { title: "فتح المغيث بشرح الفية الحديث 1/3 مجلد 2 لون شمواه", author: "السخاوي", type: "مجلد 3", price: 770, discount: "30%", net: 539 },
+    { title: "فتح الوهاب شرح منهج الطلاب", author: "زكريا الانصاري", type: "مجلد", price: 400, discount: "30%", net: 280 },
+    { title: "فتح الاقفال ويليه منحة ذي الجلال جديد", author: "الالعصيمي / الضباع", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "فضل العلم وآداب طلبته وطرق تحصيله وجمعه شمواه", author: "محمد رسلان", type: "مجلد", price: 270, discount: "30%", net: 189 },
+    { title: "فقه الادعية والاذكار 1/2 مجلد (شمواه )", author: "عبد الرزاق البدر", type: "مجلد", price: 400, discount: "30%", net: 280 },
+    { title: "فقه الأسماء الحسنى", author: "عبد الرزاق البدر", type: "مجلد", price: 170, discount: "30%", net: 119 },
+    { title: "القواعد الاساسية للغة العربية حسب منهج متن الفية ابن مالك", author: "احمد الهاشمي", type: "مجلد", price: 160, discount: "30%", net: 112 },
+    { title: "القواعد الحسان في تفسير القرآن", author: "السعدي", type: "غلاف", price: 65, discount: "30%", net: 45.5 },
+    { title: "القول السديد في مقاصد التوحيد", author: "السعدي", type: "غلاف", price: 70, discount: "30%", net: 49 },
+    { title: "قصص الانبياء لون 2 شمواه", author: "ابن كثير", type: "مجلد", price: 220, discount: "30%", net: 154 },
+    { title: "قاعدة جليلة في التوسل والوسيلة جديد", author: "ابن تيمية - ربيع المدخلي", type: "مجلد", price: 195, discount: "30%", net: 136.5 },
+    { title: "الكواكب الدرية شرح متممة الاجرومية 2 2/1 لون شمواه", author: "محمد الاهدل / ياسر البلوى", type: "مجلد 2", price: 550, discount: "30%", net: 385 },
+    { title: "كتاب التوحيد - لون 2 شمواه (جيب ()128", author: "محمد عبدالوهاب", type: "غلاف", price: 25, discount: "30%", net: 17.5 },
+    { title: "كاشفة السجا شرح نيل الرجا", author: "محمد نووي الجاوي", type: "مجلد", price: 170, discount: "30%", net: 119 },
+    { title: "كتاب الأم للشافعي 1/8 ومعه مختصر المزنى لون 2 شمواه", author: "الشافعي", type: "مجلد8", price: 2255, discount: "30%", net: 1579 },
+    { title: "كتاب الشفا بتعريف حقوق المصطفى", author: "القاضي عياض", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+    { title: "كتاب الكبائر للذهبي", author: "الامام الذهبي", type: "مجلد", price: 150, discount: "30%", net: 105 },
+    { title: "كتاب الكبائر للذهبي تحقيق مشهور حسن آل سلمان ورق شمواه توزيع -", author: "الذهبي", type: "مجلد", price: 220, discount: "30%", net: 154 },
+    { title: "كفاية الأخيار في حل غاية الاختصار", author: "تقي الدين الحصني الشافعي", type: "مجلد", price: 330, discount: "30%", net: 231 },
+    { title: "كلمات القرآن - تعليقات عقدية للشيخ عبد الرحمن الخميس - 2 لون", author: "حسنين مخلوف", type: "مجلد جيب", price: 65, discount: "30%", net: 45.5 },
+    { title: "كنز الراغبين شرح منهاج الطالبين 1/2 شمواه العالمية جديد", author: "المحلي", type: "مجلد2", price: 560, discount: "30%", net: 392 },
+    { title: "كتاب الروح لابن القيم جديد", author: "ابن القيم", type: "مجلد", price: 230, discount: "30%", net: 161 },
+    { title: "كتاب التوحيد لابن خزيمة جديد", author: "ابن خزيمة", type: "مجلد", price: 315, discount: "30%", net: 220.5 },
+    { title: "كن سلفيا على الجادة لون 2 شمواه", author: "عبد السلام السحيمي", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "اللمع في أصول الفقه لون 2 شمواه - محققة", author: "الشيرازي", type: "مجلد", price: 155, discount: "30%", net: 108.5 },
+    { title: "اللؤلؤ والمرجان فيما اتفق عليه الشيخان البخاري ومسلم 2 لون ورق شمواه", author: "محمد فؤاد عبد الباقي", type: "مجلد", price: 295, discount: "30%", net: 206.5 },
+    { title: "السان العرب 1/9 شمواه لون2", author: "ابن منظور", type: "و مجلد", price: 2740, discount: "30%", net: 1918 },
+    { title: "الممتع شرح الاجروميه لون 3 ورق شمواه مجلد - طبعة جديدة .", author: "مالك المهذري", type: "مجلد", price: 170, discount: "30%", net: 119 },
+    { title: "المنحة الربانية شرح الأربعين النووية", author: "الفوزان", type: "مجلد", price: 150, discount: "30%", net: 105 },
+    { title: "الملخص شرح كتاب التوحيد", author: "الفوزان", type: "مجلد", price: 170, discount: "30%", net: 119 },
+    { title: "المغنى لابن قدامة 10/1", author: "ابن قدامة", type: "مجلد 10", price: 3045, discount: "30%", net: 2132 },
+    { title: "المجموع شرح المهذب 2 14/1 لون شمواه", author: "النووي", type: "مجلد 14", price: 3485, discount: "30%", net: 2440 },
+    { title: "المصباح المنير تهذيب تفسير ابن كثير 2/1", author: "المباركفوري", type: "مجلد 2", price: 580, discount: "30%", net: 406 },
+    { title: "المقدمة الحضرمية في فقه السادة الشافعية (وسط 12×)17", author: "عبد الله بافضل الحضرمي", type: "غلاف", price: 35, discount: "30%", net: 24.5 },
+    { title: "المبادئ الفقهية على مذهب الامام الشافعي (وسط 12×17)", author: "عمر عبد الجبار", type: "غلاف", price: 35, discount: "30%", net: 24.5 },
+    { title: "المحلى بالآثار 1/7 مجلد لون 2 ورق شمواه", author: "ابن حزم", type: "مجلد 7", price: 2170, discount: "30%", net: 1519 },
+    { title: "المحرر الوجيز 1/10 ورق شمواه توزيع", author: "ابن عطية", type: "مجلد10", price: 2925, discount: "30%", net: 2048 },
+    { title: "المواريث في الشريعة الاسلامية", author: "محمد على الصابوني", type: "مجلد", price: 135, discount: "30%", net: 94.5 },
+    { title: "الموطأ بترقيم محمد فؤاد عبد الباقي", author: "الامام مالك", type: "مجلد", price: 305, discount: "30%", net: 213.5 },
+    { title: "المعتقد الصحيح الواجب على كل مسلم اعتقاده ورق شمواه - جديد", author: "عبد السلام بن برجس", type: "غلاف", price: 45, discount: "30%", net: 31.5 },
+    { title: "مرحبا يا طالب العلم ورق شمواه مجلد فني", author: "ربيع بن هادي المدخلي", type: "مجلد", price: 185, discount: "30%", net: 129.5 },
+    { title: "مسند الامام احمد بن حنبل 12/1 ورق شمواه 1 لون جديد", author: "الامام احمد - محمد نصر", type: "مجلد 12", price: 5790, discount: "30%", net: 4053 },
+    { title: "مفتاح دار السعادة لابن القيم جديد", author: "ابن القيم", type: "مجلد", price: 285, discount: "30%", net: 199.5 },
+    { title: "مسند الامام الشافعي رضي الله عنه تقديم : عبد القادر الارناؤوط", author: "أيوب أبو خشريف", type: "مجلد", price: 235, discount: "30%", net: 164.5 },
+    { title: "متن سفينة النجاة ويليه سفينة الصلاة (وسط 12×) 17.", author: "عبد الله وسالم الحضرميان", type: "غلاف", price: 35, discount: "30%", net: 24.5 },
+    { title: "متن الغاية والتقريب (متن أبي شجاع) في الفقه الشافعي (وسط (12×17) جديد", author: "ابو شجاع", type: "غلاف", price: 36, discount: "30%", net: 25.2 },
+    { title: "متن الأصول الثلاثة - القواعد الأربع - شروط الصلاة (وسط (12×)17. جديد", author: "محمد عبدالوهاب", type: "غلاف", price: 30, discount: "30%", net: 21 },
+    { title: "متن تحفة الأطفال والغلمان في تجويد القرآن (وسط (12×17). جديد", author: "الجمزوري", type: "غلاف", price: 15, discount: "30%", net: 10.5 },
+    { title: "منحة ذي الجلال شرح تحفة الاطفال لون 2 شمواه .", author: "علي الضباع", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "متون طالب العلم تمهيدى الاذكار والآداب ) جيب .", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 35, discount: "30%", net: 24.5 },
+    { title: "متون طالب العلم مختصر الاذكار والآداب ) جيب . جديد", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 35, discount: "30%", net: 21 },
+    { title: "متون طالب العلم 1 نواقض الاسلام - القواعد الاربع الاصول الثلاثة الاربعون النووية ) جيب", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 35, discount: "30%", net: 24.5 },
+    { title: "متون طالب العلم 2 تحفة الاطفال - شروط الصلاة واركانها وواجباتها - كتاب التوحيد جيب", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 35, discount: "30%", net: 24.5 },
+    { title: "متون طالب العلم 3 البيقونية - قصيدة الالبيري - الآجرومية - الواسطية )", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 35, discount: "30%", net: 24.5 },
+    { title: "متون طالب العلم 4 الورقات عنوان الحكم - الرحبية - الطحاوية جيب.", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 35, discount: "30%", net: 24.5 },
+    { title: "متون طالب العلم 5 زاد المستقنع جيب", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 40, discount: "30%", net: 28 },
+    { title: "متون طالب العلم 5 ) ألفية ابن مالك الخلاصة في النحو وسط 12×17", author: "طبعة عبد المحسن القاسم", type: "وسط", price: 40, discount: "30%", net: 28 },
+    { title: "متون طالب العلم 5_بلوغ المرام ) جيب.", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 40, discount: "30%", net: 28 },
+    { title: "متن عمدة الاحكام محققة على نسخ عليها اجازة الى المصنف) مشكولة جيب", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 35, discount: "30%", net: 24.5 },
+    { title: "متون طالب العلم الاضافية نخبة الفكر في مصطلح اهل الاثر محققة جيب", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 15, discount: "30%", net: 10.5 },
+    { title: "متون طالب العلم الاضافية متن الجزرية محققة جيب.", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 15, discount: "30%", net: 10.5 },
+    { title: "متون طالب العلم الاضافية متن كشف الشبهات محققة جيب ..", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 20, discount: "30%", net: 14 },
+    { title: "متون طالب العلم الاضافية متن لامية الافعال محققة جيب..", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 15, discount: "30%", net: 10.5 },
+    { title: "متون طالب العلم الاضافية متن الارجوزة المينية محققة جيب", author: "طبعة عبد المحسن القاسم", type: "جيب", price: 15, discount: "30%", net: 10.5 },
+    { title: "متون طالب العلم الاضافية متن الشاطبية محققة 17×24 جديد", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "متون طالب العلم الاضافية متن الارجوزة الميئية محققة 12 × 17 وسط", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "متون طالب العلم الاضافية متن مقدمة في أصول التفسير محققة 17 12", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "متون طالب العلم الاضافية متن نخبة الفكر محققة 12 ×17 وسط جديد", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "متون طالب العلم الاضافية متن الفية العراقي محققة 1712 % وسط جديد", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "متون طالب العلم الاضافية متن المحرر في احاديث الاحكام للمقدسي محققة 12 ×17 وسط جديد", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "متون طالب العلم الاضافية متن الأربعين النووية جيب جديد", author: "طبعة عبد المحسن القاسم", type: "غلاف", price: 15, discount: "30%", net: 10.5 },
+    { title: "متون طالب العلم مجلد محقق القاسم جديد", author: "طبعة عبد المحسن القاسم", type: "مجلد", price: 285, discount: "30%", net: 199.5 },
+    { title: "القاعدة المدنية تعليم القراءة للمبتدئين جديد", author: "عبد المحسن القاسم", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "القاعدة المدنية تعليم الكتابة للمبتدئين جديد", author: "عبد المحسن القاسم", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "قواعد الأسماء والصفات مع بيان أسماء الله الحسني ومعانيها جديد", author: "عبد المحسن القاسم", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "آداب طالب العلم جديد", author: "عبد المحسن القاسم", type: "غلاف", price: 45, discount: "30%", net: 31.5 },
+    { title: "اسهل طريقة لحفظ القرآن الكريم جديد", author: "عبد المحسن القاسم", type: "غلاف", price: 45, discount: "30%", net: 31.5 },
+    { title: "اسهل طريقة لحفظ المتون العلمية جديد", author: "عبد المحسن القاسم", type: "غلاف", price: 45, discount: "30%", net: 31.5 },
+    { title: "نزهة النظر في توضيح نخبة الفكر محقق القاسم جديد", author: "عبد المحسن القاسم", type: "مجلد", price: 170, discount: "30%", net: 119 },
+    { title: "متممة الأجرومية للحطاب ويليه نظم الاجرومية للعمريطي لون 2 - شمواه جديد", author: "الحطاب", type: "غلاف", price: 65, discount: "30%", net: 45.5 },
+    { title: "منهج الأنبياء في الدعوة الى الله فيه الحكمة والعقل لون واحد شمواه جديد", author: "ربيع المدخلي", type: "غلاف", price: 75, discount: "30%", net: 52.5 },
+    { title: "مختصر صحيح البخاري ابن ابي جمرة )", author: "ابن ابي جمرة", type: "سلوفان", price: 160, discount: "30%", net: 112 },
+    { title: "مختصر صحيح البخارى الزبيدي ) ورق شمواه لون 2 فني", author: "الزبيدي", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+    { title: "مختصر صحيح مسلم ورق شمواه 2 لون فني", author: "المنذري", type: "مجلد", price: 235, discount: "30%", net: 164.5 },
+    { title: "مختصر منهاج القاصدين ورق شمواه لون2", author: "ابن قدامة", type: "مجلد", price: 180, discount: "30%", net: 126 },
+    { title: "مختصر البغوي مجلد العالمية جديد", author: "عبد الله احمد المزيد", type: "مجلد", price: 360, discount: "30%", net: 252 },
+    { title: "محتويات سور القرآن ورق شمواه لون واحد", author: "احمد الطويل", type: "مجلد", price: 320, discount: "30%", net: 224 },
+    { title: "مدارج السالكين ورق شمواه 2 لون - مجلد واحد", author: "ابن القيم", type: "مجلد", price: 430, discount: "30%", net: 301 },
+    { title: "مذكرة اصول الفقه", author: "محمد الأمين الشنقيطي", type: "مجلد", price: 195, discount: "30%", net: 136.5 },
+    { title: "معاملة الحكام جديد", author: "عبد السلام بن برجس", type: "غلاف", price: 80, discount: "30%", net: 56 },
+    { title: "ملاك التاويل القاطع بذوي الالحاد والتعطيل جديد", author: "أبي جعفر الغرناطي", type: "مجلد", price: 430, discount: "30%", net: 301 },
+    { title: "المواهب اللدنية بالمنح المحمدية جديد", author: "القسطلاني", type: "مجلد 4", price: 1430, discount: "30%", net: 1001 },
+    { title: "معالم في طريق طلب العلم", author: "عبد العزيز السدحان", type: "مجلد", price: 160, discount: "30%", net: 112 },
+    { title: "مغني المحتاج إلى ألفاظ المنهاج 5/1 جديد", author: "الخطيب الشربيني", type: "مجلد 5", price: 1390, discount: "30%", net: 973 },
+    { title: "ملخص قواعد اللغة العربية توزيع", author: "فؤاد نعمة", type: "مجلد", price: 170, discount: "30%", net: 119 },
+    { title: "مناهل العرفان في علوم القرآن شمواه", author: "الزرقاني", type: "مجلد", price: 320, discount: "30%", net: 224 },
+    { title: "من كنوز السنة", author: "محمد على الصابوني", type: "مجلد", price: 135, discount: "30%", net: 94.5 },
+    { title: "منار السبيل شرح الدليل ورق شمواه 2 لون تخريجات الالباني", author: "ابراهيم بن ضويان", type: "مجلد", price: 300, discount: "30%", net: 210 },
+    { title: "منهاج الطالبين وعمدة المفتين في الفقه الشافعي شمواه", author: "النووي", type: "مجلد", price: 215, discount: "30%", net: 150.5 },
+    { title: "منهاج المسلم", author: "أبوبكر الجزائري", type: "مجلد", price: 190, discount: "30%", net: 133 },
+    { title: "منهج السالكين ورق شمواه لون2", author: "السعدي", type: "غلاف", price: 65, discount: "30%", net: 45.5 },
+    { title: "النحو الواضح - ابتدائي - لون 2 شمواه", author: "على الجارم", type: "مجلد", price: 190, discount: "30%", net: 133 },
+    { title: "النكت على كتاب ابن الصلاح 2/1 طبعة مصرية", author: "ربيع بن هادي", type: "مجلد 2", price: 330, discount: "30%", net: 231 },
+    { title: "نهاية السول بشرح منهاج الوصول الى علم الأصول 2 لون ورق شمواه - محققة", author: "الاسنوي محمد نصر ابوجبل", type: "مجلد", price: 335, discount: "30%", net: 234.5 },
+    { title: "نيل الاوطار شرح منتقى الاخبار 2 1/5 لون شمواه", author: "الشوكاني", type: "مجلد 5", price: 1650, discount: "30%", net: 1155 },
+    { title: "نيل الرجا شرح سفينة النجاة لون 2 شمواه", author: "احمد الشاطري", type: "غلاف", price: 60, discount: "30%", net: 42 },
+    { title: "نهاية المحتاج الى شرح المنهاج 2 1/8 لون شمواه", author: "شمس الدين الرملي", type: "مجلد 8", price: 2255, discount: "30%", net: 1579 },
+    { title: "نور اليقين في سيرة سيد المرسلين الشمواه 2 لون", author: "محمد الخضري", type: "مجلد", price: 155, discount: "30%", net: 108.5 },
+    { title: "الهدي النبوي في تربية الاولاد في ضوء الكتاب والسنة", author: "سعيد بن وهف القحطاني", type: "مجلد", price: 165, discount: "30%", net: 115.5 },
+    { title: "هداية الراغب لشرح عمدة الطالب لون 2 شمواه", author: "عثمان احمد الحنبلي - حسين", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+    { title: "الوجيز في عقيدة السلف شمواه توزيع", author: "عبد الحميد الاثري", type: "غلاف", price: 60, discount: "30%", net: 42 },
+    { title: "الورقات في أصول الفقه - - 2 لون شمواه جيب ()128", author: "الجويني", type: "غلاف", price: 15, discount: "30%", net: 10.5 },
+    { title: "الورقات في أصول الفقه لون 2 شمواه (وسط (1712)", author: "الجويني", type: "غلاف", price: 20, discount: "30%", net: 14 },
+    { title: "يا طالب العلم كيف تحفظ ؟ كيف تقرأ؟ كيف تفهم ؟", author: "عبد العزيز السدحان", type: "غلاف", price: 35, discount: "30%", net: 24.5 },
+    { title: "الياقوت النفيس في مذهب الشافعي ابن ادريس غلاف", author: "احمد الشاطري", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "الشرح الممتع على زاد المستقنع 1/7 توزيع", author: "ابن عثيمين", type: "مجلد 7", price: 2195, discount: "30%", net: 1537 },
+    { title: "فتح ذي الجلال بشرح بلوغ المرام 1/8 شمواه لون 2 توزيع", author: "ابن عثيمين", type: "مجلد 8", price: 1705, discount: "30%", net: 1194 },
+    { title: "شرح رياض الصالحين 2 1/4 لون شمواه توزيع", author: "ابن عثيمين", type: "مجلدات 4", price: 730, discount: "30%", net: 511 },
+    { title: "شرح ألفية بن مالك 1/3 توزيع", author: "ابن عثيمين", type: "مجلد 3", price: 670, discount: "30%", net: 469 },
+    { title: "تنبيه الافهام ويليه تيسير العلام شرح عمدة الاحكام 1/2 توزيع", author: "ابن عثيمين / البسام", type: "مجلد 2", price: 515, discount: "30%", net: 360.5 },
+    { title: "شرح العقيدة الواسطية لون 2 ورق شمواه توزيع", author: "ابن عثيمين", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+    { title: "القول المفيد شرح كتاب التوحيد لون 2 شمواه توزيع", author: "ابن عثيمين", type: "مجلد", price: 245, discount: "30%", net: 171.5 },
+    { title: "شرح الاصول من علم الاصول توزيع", author: "ابن عثيمين", type: "مجلد", price: 235, discount: "30%", net: 164.5 },
+    { title: "شرح الآجرومية توزيع", author: "ابن عثيمين", type: "مجلد", price: 195, discount: "30%", net: 136.5 },
+    { title: "شرح القواعد المثلى في صفات الله واسماءه الحسنى شمواه مجلد فني", author: "ابن عثيمين", type: "مجلد", price: 175, discount: "30%", net: 122.5 },
+    { title: "شرح حلية طالب العلم لون 2 شمواه توزيع", author: "ابن عثيمين", type: "مجلد", price: 125, discount: "30%", net: 87.5 },
+    { title: "شرح الأربعين النووية لون 2 شمواه توزيع", author: "ابن عثيمين", type: "مجلد", price: 170, discount: "30%", net: 119 },
+    { title: "كتاب العلم لون 2 شمواه توزيع", author: "ابن عثيمين", type: "مجلد", price: 135, discount: "30%", net: 94.5 },
+    { title: "التعليقات على الأربعين النووية لون 2 شمواه توزيع", author: "ابن عثيمين", type: "غلاف", price: 70, discount: "30%", net: 49 },
+    { title: "شرح نظم الورقات لون 2 شمواه توزيع", author: "ابن عثيمين", type: "غلاف", price: 80, discount: "30%", net: 56 },
+    { title: "شرح دروس البلاغة توزيع", author: "ابن عثيمين", type: "غلاف", price: 65, discount: "30%", net: 45.5 },
+    { title: "شرح مقدمة التفسير لابن تيمية 2 لون شمواه توزيع .", author: "ابن عثيمين", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "تسهيل الفرائض لون 2 شمواه توزيع", author: "ابن عثيمين", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "شرح كشف الشبهات 2 لون شمواه توزيع .", author: "ابن عثيمين", type: "غلاف", price: 50, discount: "30%", net: 35 },
+    { title: "شرح الأصول الثلاثة 2 لون شمواه توزيع - مجلد جديد", author: "ابن عثيمين", type: "مجلد", price: 115, discount: "30%", net: 80.5 },
+    { title: "شرح لمعة الاعتقاد شمواه توزيع . مجلد جديد", author: "ابن عثيمين", type: "مجلد", price: 115, discount: "30%", net: 80.5 },
+    { title: "الأصول من علم الأصول لون 2 شمواه元 توزيع", author: "ابن عثيمين", type: "غلاف", price: 45, discount: "30%", net: 31.5 },
+    { title: "شرح المنظومة البيقونية لون 2 شمواه توزيع", author: "ابن عثيمين", type: "غلاف", price: 45, discount: "30%", net: 31.5 },
+    { title: "أصول في التفسير لون 2 شمواه توزيع .", author: "ابن عثيمين", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "مصطلح الحديث لون 2 شمواه توزيع", author: "ابن عثيمين", type: "غلاف", price: 40, discount: "30%", net: 28 },
+    { title: "مقرر شرح برنامج معونة المتعلم 1/4 جديد", author: "صالح العصيمي", type: "شمواه", price: 1000, discount: "30%", net: 700 },
+    { title: "تمكين مهمات العلم شرح متون برنامج مهمات العلم 3/1 - توزيع ..... جديد", author: "صالح العصيمي", type: "شمواه", price: 860, discount: "30%", net: 602 },
+    { title: "شرح تذكرة السامع في ادب العالم والمتعلم مجلد - توزيع ......", author: "صالح العصيمي", type: "مجلد", price: 400, discount: "30%", net: 280 },
+    { title: "شرح كتاب التوحيد مجلد - توزيع", author: "صالح العصيمي", type: "مجلد", price: 250, discount: "30%", net: 175 },
+    { title: "شرح منظومة التفسير للزمزمي مجلد - توزيع ......", author: "صالح العصيمي", type: "مجلد", price: 250, discount: "30%", net: 175 },
+    { title: "اعلام السنة المنشورة تخريج وتعليق مجلد - توزيع ........", author: "صالح العصيمي", type: "مجلد", price: 250, discount: "30%", net: 175 },
+    { title: "شرح الاربعين النووية غلاف - توزيع ...........", author: "صالح العصيمي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح تعظيم العلم غلاف - توزيع ..........", author: "صالح العصيمي", type: "غلاف", price: 130, discount: "30%", net: 91 },
+    { title: "شرح الورقات غلاف - توزيع ..........", author: "صالح العصيمي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح ثلاثة الأصول غلاف - توزيع", author: "صالح العصيمي", type: "غلاف", price: 115, discount: "30%", net: 80.5 },
+    { title: "شرح فضل الاسلام غلاف - توزيع .........", author: "صالح العصيمي", type: "غلاف", price: 115, discount: "30%", net: 80.5 },
+    { title: "شرح الاجرامية غلاف - توزيع ..........", author: "صالح العصيمي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح مقدمة في اصول التفسير غلاف - توزيع", author: "صالح العصيمي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح منظومة القواعد الفقهية للسعدي غلاف - توزيع .........", author: "صالح العصيمي", type: "غلاف", price: 90, discount: "30%", net: 63 },
+    { title: "شرح المقدمة فيما على العبد ان يعلمه غلاف - توزيع", author: "صالح العصيمي", type: "غلاف", price: 90, discount: "30%", net: 63 },
+    { title: "شرح القواعد الاربع غلاف - توزيع .........", author: "صالح العصيمي", type: "غلاف", price: 90, discount: "30%", net: 63 },
+    { title: "شرح نخبة الفكر في المصطلح غلاف - توزيع ......", author: "صالح العصيمي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح تفسير الفاتحة وقصار المفصل غلاف - توزيع ..........", author: "صالح العصيمي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح الاصول الأربعة من السنة المتبعة غلاف - توزيع ......", author: "صالح العصيمي", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح اللوامع من الكلم الجوامع غلاف - توزيع ......", author: "صالح العصيمي", type: "غلاف", price: 90, discount: "30%", net: 63 },
+    { title: "شرح المفتاح في الفقه الحنبلي غلاف - توزيع ........", author: "صالح العصيمي", type: "غلاف", price: 90, discount: "30%", net: 63 },
+    { title: "شرح الواسطية لابن تيمية غلاف - توزيع ......", author: "صالح العصيمي", type: "غلاف", price: 90, discount: "30%", net: 63 },
+    { title: "شرح كشف الشبهات شمواه - توزيع .", author: "صالح العصيمي", type: "شمواه", price: 115, discount: "30%", net: 80.5 },
+    { title: "شرح منظومة الكبائر - توزيع .", author: "صالح العصيمي", type: "شمواه", price: 90, discount: "30%", net: 63 },
+    { title: "شرح بلوغ المرام - 4/1 توزيع", author: "عبد السلام الشويعر", type: "شمواه", price: 2515, discount: "30%", net: 1761 },
+    { title: "شرح زاد المستقنع 4/1 - توزيع ........", author: "عبد السلام الشويعر", type: "شمواه", price: 3060, discount: "30%", net: 2142 },
+    { title: "شرح اخصر المختصرات 2/1 توزيع .........", author: "عبد السلام الشويعر", type: "شمواه", price: 1000, discount: "30%", net: 700 },
+    { title: "شرح دليل الطالب 2/1 توزيع .........", author: "عبد السلام الشويعر", type: "شمواه", price: 1145, discount: "30%", net: 801.5 },
+    { title: "شرح منهج السالكين للسعدي مجلد توزيع .......", author: "عبد السلام الشويعر", type: "شمواه", price: 715, discount: "30%", net: 500.5 },
+    { title: "شرح الاربعين النووية غلاف - توزيع ...........", author: "عبد السلام الشويعر", type: "غلاف", price: 100, discount: "30%", net: 70 },
+    { title: "شرح قصب السكر نظم نخبة الفكر غلاف - توزيع .......", author: "عبد السلام الشويعر", type: "غلاف", price: 115, discount: "30%", net: 80.5 },
+    { title: "عوائق في طلب العلم غلاف - توزيع .", author: "عبد السلام الشويعر", type: "غلاف", price: 90, discount: "30%", net: 63 },
+    { title: "مفاتيح علم الفقه غلاف - توزيع ......", author: "عبد السلام الشويعر", type: "غلاف", price: 90, discount: "30%", net: 63 },
+    { title: "شرح الورقات - توزيع .", author: "عبد السلام الشويعر", type: "شمواه", price: 130, discount: "30%", net: 91 },
+    { title: "شرح اربع قواعد تدور الاحكام ة عليها - توزيع ......", author: "عبد السلام الشويعر", type: "شمواه", price: 130, discount: "30%", net: 91 },
+    { title: "شرح مقاصد الصوم الشويعر جديد", author: "عبد السلام الشويعر", type: "شمواه", price: 115, discount: "30%", net: 80.5 },
+    { title: "تفسير أسماء الله الحسني جديد", author: "صالح السندي", type: "شمواه", price: 140, discount: "30%", net: 98 },
+    { title: "شرح أصول العقائد الدينية جديد", author: "صالح السندي", type: "شمواه", price: 140, discount: "30%", net: 98 },
+    { title: "شرح الرسالة التبوكية جديد", author: "صالح السندي", type: "شمواه", price: 140, discount: "30%", net: 98 },
+    { title: "شرح العقيدة القيروانية جديد", author: "صالح السندي", type: "شمواه", price: 140, discount: "30%", net: 98 },
+    { title: "شرح القواعد الأربع جديد", author: "صالح السندي", type: "شمواه", price: 75, discount: "30%", net: 52.5 },
+    { title: "شرح المنظومة الحانية جديد", author: "صالح السندي", type: "شمواه", price: 140, discount: "30%", net: 98 },
+    { title: "شرح شروط الصلاة جديد", author: "صالح السندي", type: "شمواه", price: 140, discount: "30%", net: 98 },
+    { title: "شرح مختصر سيرة النبي جديد", author: "صالح السندي", type: "شمواه", price: 115, discount: "30%", net: 80.5 },
+    { title: "قواعد أهل السنة في الأسماء والصفات جديد", author: "صالح السندي", type: "شمواه", price: 75, discount: "30%", net: 52.5 },
+    { title: "قواعد فيه فقه القلوب جديد", author: "صالح السندي", type: "شمواه", price: 75, discount: "30%", net: 52.5 },
+    { title: "شرح العقيدة الطحاوية 1/2 جديد", author: "صالح السندي", type: "مجلد", price: 860, discount: "30%", net: 602 },
+    { title: "شرح العقيدة الواسطية جديد", author: "صالح السندي", type: "مجلد", price: 220, discount: "30%", net: 154 },
+    { title: "شرح الفتيا الحموية 1/2 جديد", author: "صالح السندي", type: "مجلد", price: 860, discount: "30%", net: 602 },
+    { title: "شرح القواعد المثلي جديد", author: "صالح السندي", type: "مجلد", price: 475, discount: "30%", net: 332.5 },
+    { title: "شرح ثلاثة الأصول جديد", author: "صالح السندي", type: "مجلد", price: 345, discount: "30%", net: 241.5 },
+    { title: "شرح عقيدة اهل السنة والجماعة جديد", author: "صالح السندي", type: "مجلد", price: 430, discount: "30%", net: 301 },
+    { title: "مراقي الوعي جديد", author: "صالح السندي", type: "مجلد", price: 430, discount: "30%", net: 301 },
+    { title: "شرح التدمرية 1/2 جديد", author: "صالح السندي", type: "مجلد 2", price: 1000, discount: "30%", net: 700 },
+    { title: "المختصر الوجيز شرح السلم المنورق في المنطق للاخضري غلاف .......", author: "محمد سعيد بحيري", type: "شمواه", price: 150, discount: "30%", net: 105 },
+    { title: "تيسير مصطلح الحديث ورق شمواه مجلد ... توزيع", author: "محمود الطحان", type: "مجلد", price: 185, discount: "30%", net: 129.5 },
+    { title: "صفة صلاة النبي وسط جديد", author: "الالباني", type: "غلاف", price: 36, discount: "30%", net: 25.2 },
+    { title: "تلخيص صفة صلاة النبي جديد", author: "الالباني", type: "غلاف", price: 15, discount: "30%", net: 10.5 },
+
+    // === القسم الثاني: كتب العروض لفترة محدودة بخصم 10% ===
+    { title: "الأدب المفرد - طبعة جديدة مخرجة الأحاديث - 2 لون شمواه فني", author: "البخاري", type: "مجلد", price: 155, discount: "10%", net: 139.5 },
+    { title: "عمدة الاحكام مجلد 2 لون شمواه جديد", author: "عبد الغني المقدسي - احمد شاكر", type: "مجلد", price: 110, discount: "10%", net: 99 },
+    { title: "اسرار الصلاة لابن القيم ويليه الخشوع في الصلاة لابن رجب مجلد 2 لون شمواه جديد", author: "ابن القيم - ابن رجب محمد نصر ابو جبل", type: "مجلد", price: 130, discount: "10%", net: 117 },
+    { title: "شرح الورقات في اصول الفقه 2 لون شمواه فني .", author: "المحلي / التفتازاني", type: "مجلد", price: 120, discount: "10%", net: 108 },
+    { title: "الابِلُ الصَّيِّبُ مِنَ الكَلِمِ الطَّيِّبِ 2 لون شمواه", author: "ابن القيم - محمد نصر ابوجبل", type: "مجلد", price: 140, discount: "10%", net: 126 },
+    { title: "مختصر سيرة الرسول الشمواه .", author: "محمد عبد الوهاب", type: "مجلد", price: 120, discount: "10%", net: 108 },
+    { title: "شرح الدروس المهمة لعامة الأمة 2 لون ورق شمواه - جديد", author: "عبد الرزاق البدر", type: "سلوفان", price: 120, discount: "10%", net: 108 },
+    { title: "الانباء بشرح متن البناء في علم التصريف - الطبعة الثانية .", author: "محمد سعيد البحيري", type: "سلوفان", price: 85, discount: "10%", net: 76.5 },
+    { title: "التبيان في آداب حملة القرآن ويليه اخلاق حملة القرآن مشكولة 2 لون", author: "النووي / الاجري", type: "غلاف", price: 75, discount: "10%", net: 67.5 },
+    { title: "شذا العرف في فن الصرف 2 لون شمواه", author: "احمد الحملاوي", type: "غلاف", price: 75, discount: "10%", net: 67.5 },
+    { title: "فتح القوي المتين شرح الأربعين وتتمة الخمسين 2 لون شمواه", author: "عبد المحسن العباد", type: "غلاف", price: 70, discount: "10%", net: 63 },
+    { title: "اعلام السنة المنشورة (200 سؤال وجواب في العقيدة ( 2 لون شمواه", author: "حافظ الحكمي", type: "غلاف", price: 60, discount: "10%", net: 54 },
+    { title: "فتح الباري شرح صحيح البخاري 1/18 2 لون بالفهارس", author: "ابن حجر", type: "مجلد 18", price: 3335, discount: "10%", net: 3002 },
+    { title: "مجموعة الفتاوى لابن تيمية 17/1 مجلد شمواه 2 لون .", author: "ابن تيمية - محمد نصر ابوجبل", type: "مجلد 17", price: 3335, discount: "10%", net: 3002 },
+    { title: "سير اعلام النبلاء 20/1 مجلد مجلد شمواه الون.", author: "الذهبي - أسامة الجمال", type: "مجلد 20", price: 3335, discount: "10%", net: 3002 },
+    { title: "نضرة النعيم في مكارم اخلاق الرسول الكريم 1/12 ورق شمواه", author: "مجموعة علماء", type: "مجلد 12", price: 2775, discount: "10%", net: 2498 },
+    { title: "حاشية ابن عابدين 8/1 قطع كبير ورق شمواه الون - محققة .", author: "ابن عابدين", type: "مجلد 8", price: 2900, discount: "10%", net: 2610 },
+    { title: "واحة التفسير 1/15 ورق شمواه جديد - توزيع .", author: "احمد الطويل", type: "مجلد 15", price: 3560, discount: "10%", net: 3204 },
+    { title: "اتحاف السادة المتقين شرح احياء علوم الدين 10/1 شمواه قطع كبير .", author: "الزبيدي", type: "مجلد 10", price: 2225, discount: "10%", net: 2003 },
+    { title: "تفسير الرافدين حاشية على تفسير الجلالين 40/1 ورق شمواه .", author: "محمد نصر ابوجبل", type: "مجلد 40", price: 11100, discount: "10%", net: 9990 },
+    { title: "مجالس شهر رمضان الفوزان تخفيض", author: "صالح الفوزان", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "لطائف المعارف العالمية - تخفيض", author: "ابن رجب الحنبلي - محمد نصر", type: "مجلد", price: 145, discount: "10%", net: 130.5 },
+    { title: "اعراب سورة الفاتحة وجزء عم - تخفيض", author: "سعد عبد الغفار", type: "مجلد", price: 90, discount: "10%", net: 81 },
+    { title: "اضواء البيان 7/1 العالمية - تخفيض", author: "الشنقيطي", type: "مجلد 7", price: 1445, discount: "10%", net: 1301 },
+    { title: "البداية والنهاية 7/1 العالمية - تخفيض", author: "ابن كثير - محمد نصر ابوجبل", type: "مجلد 7", price: 1445, discount: "10%", net: 1301 },
+    { title: "التفسير الميسر ربع فني - تخفيض", author: "مجموعة علماء", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "تفسير جزء عم الفوزان - تخفيض", author: "صالح الفوزان", type: "مجلد", price: 180, discount: "10%", net: 162 },
+    { title: "تفسير جزء عم عثيمين - تخفيض", author: "ابن عثيمين", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "تفسير البغوي العالمية 4/1 - تخفيض", author: "البغوي", type: "مجلد4", price: 835, discount: "10%", net: 751.5 },
+    { title: "تفسير القرطبي 10 مجلد العالمية تخفيض", author: "القرطبي", type: "مجلد 10", price: 2115, discount: "10%", net: 1904 },
+    { title: "تفسير الطبري 19/1 العالمية - تخفيض", author: "الطبري", type: "مجلد 19", price: 4445, discount: "10%", net: 4001 },
+    { title: "حاشية الصاوي العالمية 4/1 - تخفيض", author: "الصاوي", type: "مجلد 4", price: 780, discount: "10%", net: 702 },
+    { title: "روائع البيان الصابوني 2/1 - تخفيض", author: "الصابوني", type: "مجلد 2", price: 335, discount: "10%", net: 301.5 },
+    { title: "شرح تلخيص صفة صلاة النبي - تخفيض", author: "الالباني", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "شرح المفسر من القرآن الميسر العصيمي - تخفيض", author: "العصيمي", type: "غلاف", price: 60, discount: "10%", net: 54 },
+    { title: "شرح مفتاح السعادتين العصيمي - تخفيض", author: "العصيمي", type: "غلاف", price: 60, discount: "10%", net: 54 },
+    { title: "شرح الباقيات الصالحات العصيمي - تخفيض", author: "العصيمي", type: "غلاف", price: 60, discount: "10%", net: 54 },
+    { title: "شرح الاذكار التي تقال العصيمي - تخفيض", author: "العصيمي", type: "غلاف", price: 60, discount: "10%", net: 54 },
+    { title: "ادب الدنيا والدين - تخفيض", author: "الماوردي", type: "مجلد", price: 125, discount: "10%", net: 112.5 },
+    { title: "تفسيرايات الاحكام السايس 2/1 - تخفيض", author: "السايس", type: "مجلد 2", price: 390, discount: "10%", net: 351 },
+    { title: "منهاج القاصدين 2/1 العالمية - تخفيض", author: "ابن الجوزي", type: "مجلد 2", price: 390, discount: "10%", net: 351 },
+    { title: "صيد الخاطر العالمية - تخفيض", author: "ابن الجوزي", type: "مجلد", price: 200, discount: "10%", net: 180 },
+    { title: "الملخص الفقهي الفوزان - تخفيض", author: "الفوزان", type: "مجلد", price: 180, discount: "10%", net: 162 },
+    { title: "فتاوى اركان الاسلام عثيمين - تخفيض", author: "ابن عثيمين", type: "مجلد", price: 145, discount: "10%", net: 130.5 },
+    { title: "اغاثة اللهفان العالمية - تخفيض", author: "ابن القيم", type: "مجلد", price: 280, discount: "10%", net: 252 },
+    { title: "طريق الهجرتين لابن القيم - تخفيض", author: "ابن القيم", type: "مجلد", price: 200, discount: "10%", net: 180 },
+    { title: "جامع العلوم والحكم - تخفيض", author: "ابن رجب الحنبلي محمد نصر", type: "مجلد", price: 215, discount: "10%", net: 193.5 },
+    { title: "جامع المتون العلمية 1 - تخفيض", author: "مجموعة علماء", type: "مجلد", price: 100, discount: "10%", net: 90 },
+    { title: "جامع المتون العلمية 3 - تخفيض", author: "مجموعة علماء", type: "مجلد", price: 170, discount: "10%", net: 153 },
+    { title: "اوضح المسالك شرح الفية ابن مالك - تخفيض", author: "ابن هشام", type: "مجلد", price: 135, discount: "10%", net: 121.5 },
+    { title: "اعلام الموقعين مجلد واحد - تخفيض", author: "ابن القيم", type: "مجلد", price: 335, discount: "10%", net: 301.5 },
+    { title: "بغية الايضاح 2/1 العالمية - تخفيض", author: "عبد المتعال الصعيدي", type: "مجلد", price: 335, discount: "10%", net: 301.5 },
+    { title: "التحفيقات المرضية الفوزان - تخفيض", author: "الفوزان", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "تفسير الثعالبي 4/1 العالمية - تخفيض", author: "الثعالبي", type: "مجلد 4", price: 780, discount: "10%", net: 702 },
+    { title: "تحفة المحتاج 6/1 طبعة جديدة - تخفيض", author: "ابن حجر الهيثمي", type: "مجلدات 5", price: 1335, discount: "10%", net: 1202 },
+    { title: "تحفة الحبيب على شرح الخطيب 4/1 - تخفيض", author: "البيجيرمي", type: "مجلدات 6", price: 835, discount: "10%", net: 751.5 },
+    { title: "جواهر البخاري العالمية - تخفيض", author: "احمد الهاشمي", type: "مجلد", price: 135, discount: "10%", net: 121.5 },
+    { title: "جواهر البلاغة مجلد فني - تخفيض", author: "احمد الهاشمي", type: "مجلد", price: 135, discount: "10%", net: 121.5 },
+    { title: "حادي الارواح / العالمية - تخفيض", author: "ابن القيم", type: "مجلد", price: 190, discount: "10%", net: 171 },
+    { title: "حاشية قليوبي وعميرة 4/1 العالمية - تخفيض", author: "قلوبي وعميرة", type: "مجلد 4", price: 835, discount: "10%", net: 751.5 },
+    { title: "خلاصة تاريخ الاندلس العالمية تخفيض", author: "شكيب أرسلان", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "الدروس النحوية - تخفيض", author: "مجموعة علماء", type: "مجلد", price: 135, discount: "10%", net: 121.5 },
+    { title: "شرح تنقيح الفصول العالمية - تخفيض", author: "القرافي", type: "مجلد", price: 170, discount: "10%", net: 153 },
+    { title: "شرح الرحبية العالمية - تخفيض", author: "المارديني محي الدين عبد", type: "غلاف", price: 45, discount: "10%", net: 40.5 },
+    { title: "الصفات الالهية - تخفيض", author: "محمد امان الجامي", type: "مجلد", price: 135, discount: "10%", net: 121.5 },
+    { title: "علم اصول الفقه العالمية - تخفيض", author: "عبدالوهاب خلاف", type: "غلاف", price: 60, discount: "10%", net: 54 },
+    { title: "الفوائد المدنية مجلد - تخفيض", author: "سليمان الكردي", type: "مجلد", price: 90, discount: "10%", net: 81 },
+    { title: "فتح العلي الأعلى - تخفيض", author: "عبيد الجابري", type: "مجلد", price: 135, discount: "10%", net: 121.5 },
+    { title: "فتح القدير 3/1 العالمية - تخفيض", author: "الشوكاني", type: "مجلد3", price: 725, discount: "10%", net: 652.5 },
+    { title: "قوت الحبيب الغريب - تخفيض", author: "نووي الجامي", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "المدخل الى كتب الحديث التسعة - تخفيض", author: "ملا محمد رشيد", type: "مجلد", price: 90, discount: "10%", net: 81 },
+    { title: "المهذب في الفقه الشافعي 3/1 تخفيض", author: "الشيرازي", type: "مجلد3", price: 445, discount: "10%", net: 400.5 },
+    { title: "مجموع رسائل وتوجيهات اسلامية - تخفيض", author: "محمد جيل زينو", type: "مجلد", price: 225, discount: "10%", net: 202.5 },
+    { title: "معجم المناهي اللفظية - تخفيض", author: "بكر ابوزيد", type: "مجلد", price: 225, discount: "10%", net: 202.5 },
+    { title: "تفسير الجلالين - تخفيض", author: "الجلالين", type: "مجلد", price: 190, discount: "10%", net: 171 },
+    { title: "صحيح البخاري 1/4 ورق شمواه لون واحد تعليقات العلامة محمد ذهني", author: "البخاري", type: "مجلد", price: 560, discount: "10%", net: 504 },
+    { title: "صحيح البخاري ورق شمواه 2 لون مشكول مجلد واحد", author: "البخاري", type: "مجلد", price: 270, discount: "10%", net: 243 },
+    { title: "صحيح مسلم ورق شمواه 2 لون مشكول مجلد واحد", author: "مسلم", type: "مجلد", price: 225, discount: "10%", net: 202.5 },
+    { title: "الرحيق المختوم 2 لون شمواه منقحة مع اضافات جديدة - فني", author: "المباركفوري - محمد نصر", type: "مجلد", price: 140, discount: "10%", net: 126 },
+    { title: "القاعدة النورانية مقاس 2014", author: "نور محمد حقاني", type: "غلاف", price: 70, discount: "10%", net: 63 },
+    { title: "القاعدة النورانية مقاس 2820", author: "نور محمد حقاني", type: "غلاف", price: 90, discount: "10%", net: 81 },
+    { title: "القاعدة النورانية مقاس 2820 مع جزء عم ....... جديد", author: "نور محمد حقاني", type: "غلاف", price: 90, discount: "10%", net: 81 },
+    { title: "حاشية الخضري على شرح ابن عقيل على الالفية ورق شمواه توزيع", author: "الخضري", type: "مجلد 2", price: 290, discount: "10%", net: 261 },
+    { title: "شروح التلخيص 4/1 قطع كبير ورق شمواه - توزيع .... جديد", author: "التفتازاني", type: "مجلد 4", price: 1115, discount: "10%", net: 1004 },
+    { title: "المنجد في اللغة والاعلام توزيع ...", author: "مجموعة علماء", type: "مجلد", price: 560, discount: "10%", net: 504 },
+    { title: "المعجم الوسيط توزيع ...", author: "مجموعة علماء", type: "مجلد", price: 560, discount: "10%", net: 504 },
+    { title: "شرح ابن عقيل 2/1 ابيض - توزيع - دار الشاهد ......", author: "ابن عقيل", type: "مجلد2", price: 255, discount: "10%", net: 229.5 },
+    { title: "شرح قطر الندى مجلد - شمواه توزيع - دار الشاهد .........", author: "ابن هشام", type: "مجلد", price: 135, discount: "10%", net: 121.5 },
+    { title: "التحفة السينية شرح الاجرومية - غلاف - توزيع - دار الشاهد ......", author: "محمد محيي الدين عبد الحميد |", type: "غلاف", price: 60, discount: "10%", net: 54 },
+    { title: "شرح الرحبية - غلاف - توزيع - دار الشاهد .....", author: "محمد محيي الدين عبد الحميد", type: "غلاف", price: 60, discount: "10%", net: 54 },
+    { title: "دروس التصريف - غلاف - توزيع - دار الشاهد .", author: "محمد محيي الدين عبد الحميد", type: "غلاف", price: 80, discount: "10%", net: 72 },
+    { title: "مصحف القراءات العشر العالمية .", author: "كريم راجح", type: "مجلد", price: 180, discount: "10%", net: 162 },
+    { title: "مصحف الروايات القرآنية الاربعة على هامش حفص قالون - ورش الدوري", author: "محمد عيد شعباني", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "مصحف ربع قالون - شمواه - 14×20", author: "شمواه", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "مصحف ربع ورش - شمواه - 14×20", author: "شمواه", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "مصحف ربع الدوري - شمواه -  2014", author: "شمواه", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+    { title: "مصحف ربع السوسي - شمواه 14×21", author: "شمواه", type: "مجلد", price: 115, discount: "10%", net: 103.5 },
+
+    // === القسم الثالث: كتب قيد الطبع والموسوعات ===
+    { title: "مصحف ربع حفص - شمواه - 14×.......20", author: "تحت الطبع", type: "مجلد", price: 0, discount: "0%", net: 0, note: "قيد الطبع" },
+    { title: "الموسوعة الفقهية الكويتية 1/45 مجلد ورق ابيض قطع كبير توزيع ......", author: "مجموعة علماء", type: "مجلد 45", price: 0, discount: "0%", net: 0, note: "قيد الطبع" },
+    { title: "تشنيف الآذان بشرح مئة المعاني والبيان في علوم البلاغة غلاف", author: "محمد سعيد بحيري", type: "شمواه", price: 0, discount: "0%", net: 0, note: "قيد الطبع" },
+
+    // === القسم الرابع: كتب دار القلم المقيمة بالدولار ===
+    { title: "أصول الفقه على منهج أهل السنة 1/4 دار القلم توزيع .............", author: "توزيع دار القلم", type: "مجلد", price: 50, discount: "0%", net: 50, note: "دولار $" },
+    { title: "الفقه المنهجي على مذهب الشافعي رضي الله عنه 2 1/3 لون ورق شمواه طبعة دار القلم", author: "مجموعة علماء", type: "مجلد", price: 30, discount: "0%", net: 30, note: "دولار $" },
+    { title: "المعتمد في الفقه الشافعي 1/5 دار القلم توزيع ............", author: "توزيع دار القلم", type: "مجلد", price: 50, discount: "0%", net: 50, note: "دولار $" },
+    { title: "التذهيب في الفقه الشافعي 2 لون ورق شمواه - توزيع -", author: "مجموعة علماء", type: "مجلد", price: 6.5, discount: "0%", net: 6.5, note: "دولار $" },
+    { title: "الوافي شرح الاربعين النووية لون 2 ورق شمواه توزيع _", author: "مجموعة علماء", type: "مجلد", price: 6.5, discount: "0%", net: 6.5, note: "دولار $" },
+    { title: "التحفة الوصابية in تسهيل متن الاجرومية توزيع", author: "مجموعة علماء", type: "مجلد", price: 7.5, discount: "0%", net: 7.5, note: "دولار $" },
+    { title: "التاريخ الاندلسي دار القلم جديد", author: "دار القلم", type: "مجلد", price: 15, discount: "0%", net: 15, note: "دولار $" }
+];
+
+
+        let cart = [];
+
+        function toAr(num) {
+            return num.toString().replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
+        }
+
+        function renderBooks(data) {
+            const tbody = document.getElementById('booksTableBody');
+            const statsBar = document.getElementById('statsBar');
+            
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-muted);">لا توجد كتب تطابق هذا البحث 🕊️</td></tr>`;
+                statsBar.textContent = `عدد الكتب المتاحة: ٠ عناوين`;
+                return;
+            }
+
+            tbody.innerHTML = data.map((b, index) => `
+                <tr>
+                    <td class="book-title">${b.title}</td>
+                    <td>${b.author}</td>
+                    <td><span class="badge-type">${b.type}</span></td>
+                    <td class="price-old">${toAr(b.price)} ج.م</td>
+                    <td><span class="discount-pct">${toAr(b.discount)}</span></td>
+                    <td class="price-net">${toAr(b.net)} ج.م</td>
+                    <td><button class="btn-add" onclick="addToCart(${index})">إضافة</button></td>
+                </tr>
+            `).join('');
+
+            statsBar.textContent = `عدد العناوين المتاحة حالياً: ${toAr(data.length)} كتاب معتمد قيد العرض`;
+        }
+
+        function filterBooks() {
+            const query = document.getElementById('searchInp').value.trim();
+            if (!query) {
+                renderBooks(booksData);
+                return;
+            }
+            const filtered = booksData.filter(b => 
+                b.title.includes(query) || 
+                b.author.includes(query) || 
+                b.type.includes(query)
+            );
+            renderBooks(filtered);
+        }
+
+        function addToCart(index) {
+            const book = booksData[index];
+            cart.push(book);
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const panel = document.getElementById('cartPanel');
+            const countEl = document.getElementById('cartCount');
+            const totalEl = document.getElementById('cartTotal');
+
+            if (cart.length === 0) {
+                panel.style.display = 'none';
+                return;
+            }
+
+            panel.style.display = 'flex';
+            countEl.textContent = toAr(cart.length);
+            
+            const total = cart.reduce((sum, book) => sum + book.net, 0);
+            totalEl.textContent = toAr(total.toFixed(1));
+        }
+
+        // تشغيل فوري وضخ البيانات عند التحميل
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBooks(booksData);
+        });
+    </script>
+</body>
+</html>
