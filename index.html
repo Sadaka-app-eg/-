@@ -10,7 +10,7 @@
     <link rel="apple-touch-icon" href="icon-192.png">
     <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* المتغيرات الافتراضية للوضع الفاتح الكلاسيكي */
+        /* ☀️ المتغيرات الافتراضية للوضع الفاتح الكلاسيكي */
         :root {
             --bg: #f8f6f0;
             --card-bg: #ffffff;
@@ -24,8 +24,8 @@
             --header-border: #8b6914;
         }
 
-        /* 🌙 المتغيرات الخاصة بالوضع الليلي الفخم */
-        [data-theme="dark"] {
+        /* 🌙 المتغيرات الخاصة بالوضع الليلي الفخم (تمت زيادة القوة البرمجية لـ :root) */
+        :root[data-theme="dark"] {
             --bg: #0d1117;
             --card-bg: #161b22;
             --primary: #cda869;
@@ -79,11 +79,11 @@
             font-size: 14px;
         }
 
-      /* ☀️ تعديل زر التبديل ليكون عائماً ومضمون اللمس 100% */
+        /* ☀️ زر التبديل العائم والمؤمن تماماً في زاوية الشاشة السفلية */
         .theme-toggle-btn {
-            position: fixed; /* تغيير إلى ثابت ليفصل عن تداخلات الهيدر */
+            position: fixed;
             bottom: 20px;
-            right: 20px; /* تمثيله في زاوية الشاشة السفلية يميناً بروقان */
+            right: 20px;
             background: var(--primary);
             border: 2px solid var(--card-bg);
             color: var(--bg);
@@ -96,7 +96,7 @@
             justify-content: center;
             font-size: 22px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 999999; /* رفعه فوق كل طبقات الموقع لمنع حجب اللمس */
+            z-index: 999999;
             transition: transform 0.2s, background-color 0.3s;
         }
 
@@ -271,7 +271,6 @@
         @media (max-width: 600px) {
             body { padding: 10px; }
             header { padding: 40px 15px 20px; }
-            .theme-toggle-btn { top: 12px; left: 12px; }
         }
     </style>
 </head>
