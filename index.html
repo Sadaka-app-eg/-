@@ -320,105 +320,87 @@
             animation-delay: 0.6s;
         }
 
-       /* 📱 هندسة العرض الذكي بملء الشاشة والملمح الواحد للموبايل */
+/* 📱 تنسيق الجدول المضموم بالملي ليظهر كاملاً بلمحة واحدة على الموبايل */
         @media (max-width: 600px) {
             body { 
-                padding: 8px; 
+                padding: 4px; /* تقليل حواف الشاشة لأقصى درجة */
             }
             header { 
-                padding: 20px 12px; 
-                margin-bottom: 15px;
+                padding: 15px 8px; 
+                margin-bottom: 12px;
             }
             header h1 {
-                font-size: 22px;
+                font-size: 20px;
+            }
+            header p {
+                font-size: 11px;
             }
             .controls-wrapper {
-                padding: 10px;
-                margin-bottom: 15px;
-                gap: 8px;
+                padding: 8px;
+                margin-bottom: 12px;
+                gap: 6px;
             }
             .search-box {
-                padding: 10px;
-                font-size: 13px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            .stats-bar {
+                font-size: 11px;
             }
 
-            /* سحر تفكيك الجدول وتحويله لكروت مدمجة تظهر بالكامل أمام العين */
+            /* 📐 إجبار الجدول على الانضمام والاحتواء الكامل داخل شاشة الموبايل */
             .table-container {
-                border: none;
-                background: transparent;
-                box-shadow: none;
-            }
-            table, thead, tbody, th, td, tr { 
-                display: block; 
+                border-radius: 8px;
+                overflow-x: hidden; /* منع السكرول الجانبي تماماً */
                 width: 100%;
             }
-            thead { 
-                display: none; 
+            table {
+                width: 100%;
+                table-layout: fixed; /* إجبار الأعمدة على الالتزام بالعرض المتاح */
+                font-size: 10px; /* تصغير الخط بالملي ليناسب عرض الشاشة */
             }
-            
-            /* تحويل كل سطر كتاب إلى كارت مستقل فخم ومريح */
-            tr {
-                background: var(--card-bg);
-                border: 1px solid var(--border);
-                border-right: 4px solid var(--primary);
-                border-radius: 12px;
-                padding: 12px;
-                margin-bottom: 10px;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.01);
-                position: relative;
+            th, td {
+                padding: 6px 4px; /* تقليل المسافات الداخلية للخلايا جداً */
+                white-space: normal; /* السماح للنص بالننزول لسطر جديد لو الكتاب طويل */
+                word-break: break-word;
             }
-            
-            /* إعادة توزيع الخلايا لتظهر تحت بعضها بنسق طولي مدمج */
-            td { 
-                text-align: right;
-                padding: 4px 0;
-                border-bottom: none;
-                white-space: normal; 
-                font-size: 13px;
-            }
-            
-            /* تمييز اسم الكتاب ليكون في الصدارة */
-            td:first-child {
-                padding-bottom: 6px;
-                border-bottom: 1px dashed var(--border);
-                margin-bottom: 6px;
-                width: calc(100% - 70px); 
-            }
+
+            /* 📏 تحديد نسب عرض ذكية لكل عمود عشان يظهروا كلهم جنب بعض بروقان */
+            th:nth-child(1), td:nth-child(1) { width: 32%; } /* اسم الكتاب ياخد المساحة الأكبر */
+            th:nth-child(2), td:nth-child(2) { width: 20%; } /* المؤلف */
+            th:nth-child(3), td:nth-child(3) { width: 12%; } /* النوع */
+            th:nth-child(4), td:nth-child(4) { width: 11%; } /* الرسمي */
+            th:nth-child(5), td:nth-child(5) { width: 9%; }  /* الخصم */
+            th:nth-child(6), td:nth-child(6) { width: 11%; } /* الصافي */
+            th:nth-child(7), td:nth-child(7) { width: 5%; }  /* زر الشراء */
+
             .book-title {
-                font-size: 16px;
-                line-height: 1.4;
+                font-size: 10.5px; /* مقاس خط اسم الكتاب التراثي */
+                line-height: 1.3;
+                min-width: auto;
             }
-
-            /* إظهار كرت المؤلف والنوع والأسعار جنب بعض في سطر مدمج ونظيف */
-            td:nth-child(2), td:nth-child(3), td:nth-child(4), td:nth-child(5), td:nth-child(6) {
-                display: inline-block;
-                width: auto;
-                margin-left: 10px;
-                color: var(--text-muted);
+            .badge-type {
+                padding: 2px 4px;
+                font-size: 9px;
+            }
+            .price-old {
+                font-size: 9.5px;
+            }
+            .price-net {
+                font-size: 10.5px;
+            }
+            .discount-pct {
+                padding: 1px 3px;
+                font-size: 9.5px;
             }
             
-            td:nth-child(2)::before { content: "المؤلف: "; font-size: 11px; color: var(--primary); }
-            
-            /* إبراز السعر الصافي ليكون واضحاً */
-            td:nth-child(6) {
-                display: block;
-                margin-top: 4px;
-                font-size: 15px;
-            }
-            td:nth-child(6)::before { content: "الصافي: "; font-size: 12px; color: var(--text-muted); font-weight: normal; }
-
-            /* نقل زر الشراء ليكون عائماً ومثبتاً في زاوية الكارت يميناً بروقان */
-            td:last-child {
-                position: absolute;
-                top: 12px;
-                left: 12px;
-                width: auto;
-                padding: 0;
-            }
+            /* تظبيط زرار الإضافة الصغير عشان يدخل جوة خانته */
             .btn-add {
-                padding: 6px 14px;
-                font-size: 12px;
-                border-radius: 6px;
+                padding: 4px 6px;
+                font-size: 9.5px;
+                border-radius: 4px;
+                width: 100%;
+                text-align: center;
             }
         }
     </style>
