@@ -85,10 +85,11 @@
         }
 
         /* ☀️ زر التبديل العائم والمؤمن تماماً في زاوية الشاشة السفلية يميناً */
+       /* ☀️ تثبيت زر التبديل فوق على اليسار بشكل عائم واحترافي */
         .theme-toggle-btn {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
+            position: fixed; /* ثابت وعائم مكانه */
+            top: 20px;       /* مسافة 20 بكسل من السقف */
+            left: 20px;      /* مسافة 20 بكسل من زاوية اليسار */
             background: var(--primary);
             border: 2px solid var(--card-bg);
             color: var(--bg);
@@ -101,7 +102,7 @@
             justify-content: center;
             font-size: 22px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            z-index: 999999;
+            z-index: 999999; /* مرفوع فوق شاشة الـ Splash وفوق كل كروت الكتب */
             transition: transform 0.2s, background-color 0.3s;
         }
 
