@@ -1,7 +1,7 @@
 // Service Worker لمعرض الدار العالمية للنشر والتجليد
 // بيخزن كل ملفات الموقع جوه الجهاز عشان يشتغل من غير إنترنت خالص
 
-const CACHE_NAME = 'dar-alalamiya-cache-v5';
+const CACHE_NAME = 'dar-alalamiya-cache-v6';
 
 const FILES_TO_CACHE = [
   './index.html',
