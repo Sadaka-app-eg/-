@@ -50,13 +50,16 @@
             
         }
 
-        body {
-            font-family: 'Cairo', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-main);
-            padding: 20px;
-            line-height: 1.6;
-        }
+       body {
+    font-family: 'Cairo', sans-serif;
+    background-color: var(--bg);
+    color: var(--text-main);
+    padding: 20px;
+    line-height: 1.6;
+    
+    /* 🛡️ المكان الصح للسطر السحري هنا جوة الاستايل فوق */
+    overscroll-behavior-y: contain; 
+}
 
         header {
             background: var(--card-bg);
@@ -403,6 +406,7 @@
                 text-align: center;
             }
         }
+        
     </style>
 </head>
 <body>
