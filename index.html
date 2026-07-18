@@ -592,11 +592,32 @@
         });
 
         // تسجيل الـ Service Worker للمزامنة أوفلاين
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(() => {});
+       // 🔄 منظومة التحديث الفوري والذكي لجميع المستخدمين لمنع الكاش
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then(reg => {
+            // التحقق كل فترة لو فيه تحديث جديد نازل على جيت هاب
+            reg.addEventListener('updatefound', () => {
+                const newWorker = reg.installing;
+                newWorker.addEventListener('statechange', () => {
+                    // أول ما ملف الـ sw الجديد يتثبت بنجاح، بنعمل ريفريش إجباري فوراً
+                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                        window.location.reload();
+                    }
+                });
             });
+        }).catch(() => {});
+    });
+
+    // تأمين تفعيل الـ Service Worker الجديد فوراً في الكواليس
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+        if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
         }
+    });
+}
     </script>
 </body>
 </html>
